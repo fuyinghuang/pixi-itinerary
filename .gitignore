@@ -1,0 +1,19 @@
+# secrets — local env files are never committed; the template is
+.env
+.env.*
+.env.local
+!.env.example
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+# node
+node_modules/
+dist/
+# os
+.DS_Store
+# editor / scratch
+.idea/
+.vscode/
+Untitled

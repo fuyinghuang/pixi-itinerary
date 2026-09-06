@@ -1,0 +1,376 @@
+{
+  "_meta": {
+    "version": "2.0.0",
+    "generated_for": "PIXI AI Product Engineer — take-home exercise",
+    "notes": [
+      "Nightly rates are indicative 2025 averages in USD. Actual rates vary significantly by season, room category, and booking channel.",
+      "All-inclusive properties (safari lodges) bundle game drives, meals, and beverages into the nightly rate.",
+      "Images are deterministic placeholders from picsum.photos, not real hotel photography.",
+      "Descriptions are written for the exercise and are not supplied by or endorsed by the hotels.",
+      "Coordinates are approximate — verified to within roughly one kilometre for most properties, with lower confidence noted in access_notes where applicable."
+    ],
+    "tag_vocabulary": [
+      "luxury",
+      "boutique",
+      "city",
+      "beach",
+      "safari",
+      "spa",
+      "resort",
+      "family",
+      "adults-only",
+      "pet-friendly",
+      "eco",
+      "all-inclusive",
+      "heritage",
+      "wellness"
+    ]
+  },
+  "hotels": [
+    {
+      "id": "ellerman-house-cape-town",
+      "name": "Ellerman House",
+      "brand": null,
+      "country": "South Africa",
+      "region": "Western Cape",
+      "city": "Cape Town",
+      "latitude": -33.9291,
+      "longitude": 18.3779,
+      "nearest_airport": {
+        "iata": "CPT",
+        "name": "Cape Town International Airport"
+      },
+      "access_notes": "25-minute drive from Cape Town International Airport.",
+      "description": "Intimate twelve-room villa property perched on the cliffs of Bantry Bay, with uninterrupted Atlantic Ocean views. The atmosphere is closer to a private residence than a hotel, with an exceptional contemporary art collection and no signage from the street. A strong Cape Town anchor for itineraries continuing to the Winelands or the Eastern Cape.",
+      "tags": ["luxury", "boutique", "city"],
+      "approx_nightly_rate": 650,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/ellerman-house-1/800/600",
+        "https://picsum.photos/seed/ellerman-house-2/800/600",
+        "https://picsum.photos/seed/ellerman-house-3/800/600",
+        "https://picsum.photos/seed/ellerman-house-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Superior Room", "rate_delta": 0 },
+        { "name": "Deluxe Room", "rate_delta": 200 }
+      ]
+    },
+    {
+      "id": "delaire-graff-stellenbosch",
+      "name": "Delaire Graff Estate",
+      "brand": null,
+      "country": "South Africa",
+      "region": "Western Cape",
+      "city": "Stellenbosch",
+      "latitude": -33.9206,
+      "longitude": 18.9187,
+      "nearest_airport": {
+        "iata": "CPT",
+        "name": "Cape Town International Airport"
+      },
+      "access_notes": "50-minute drive from Cape Town International Airport via the N2 and Helshoogte Pass. The estate has a private helipad for helicopter arrivals.",
+      "description": "Wine estate on the Helshoogte Pass between Stellenbosch and Franschhoek, combining a working winery with a luxury lodge and world-class jewellery gallery. The elevated position offers panoramic views across the valley to the Simonsberg mountains. Works well as a two-to-three night Winelands base within easy reach of Cape Town.",
+      "tags": ["luxury", "boutique", "spa"],
+      "approx_nightly_rate": 850,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/delaire-graff-1/800/600",
+        "https://picsum.photos/seed/delaire-graff-2/800/600",
+        "https://picsum.photos/seed/delaire-graff-3/800/600",
+        "https://picsum.photos/seed/delaire-graff-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Deluxe Lodge", "rate_delta": 0 },
+        { "name": "Owner's Villa", "rate_delta": 1500 }
+      ]
+    },
+    {
+      "id": "londolozi-sabi-sand",
+      "name": "Londolozi Private Game Reserve",
+      "brand": null,
+      "country": "South Africa",
+      "region": "Mpumalanga",
+      "city": "Sabi Sand Game Reserve",
+      "latitude": -24.7600,
+      "longitude": 31.4800,
+      "nearest_airport": {
+        "iata": "JNB",
+        "name": "OR Tambo International Airport"
+      },
+      "access_notes": "Charter flight from OR Tambo International to the lodge's private airstrip, approximately one hour. Alternatively, Airlink serves Skukuza Airport (SZK), a 30-minute drive from camp.",
+      "description": "Family-run reserve in the Sabi Sand bordering Kruger National Park, renowned for its resident leopard population and multi-generational guiding expertise. Five distinct camps along the Sand River cater to different styles, from the flagship Granite Suites to the more traditional Pioneer Camp. All-inclusive rates cover twice-daily game drives, meals, and beverages.",
+      "tags": ["luxury", "safari", "all-inclusive", "eco"],
+      "approx_nightly_rate": 1800,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/londolozi-1/800/600",
+        "https://picsum.photos/seed/londolozi-2/800/600",
+        "https://picsum.photos/seed/londolozi-3/800/600",
+        "https://picsum.photos/seed/londolozi-4/800/600",
+        "https://picsum.photos/seed/londolozi-5/800/600"
+      ],
+      "rooms": [
+        { "name": "Pioneer Camp Room", "rate_delta": 0 },
+        { "name": "Granite Suite", "rate_delta": 700 }
+      ]
+    },
+    {
+      "id": "giraffe-manor-nairobi",
+      "name": "Giraffe Manor",
+      "brand": "The Safari Collection",
+      "country": "Kenya",
+      "region": "Nairobi County",
+      "city": "Nairobi",
+      "latitude": -1.3756,
+      "longitude": 36.7447,
+      "nearest_airport": {
+        "iata": "NBO",
+        "name": "Jomo Kenyatta International Airport"
+      },
+      "access_notes": "30-minute drive from Jomo Kenyatta International Airport to the Karen suburb.",
+      "description": "A 1930s manor house in the Karen suburb of Nairobi, famous for its resident Rothschild's giraffes that visit the property at mealtimes. Limited to twelve rooms, so availability books out months ahead. Works best as a one-or-two-night bookend before or after a bush safari rather than a long stay.",
+      "tags": ["luxury", "boutique", "family", "heritage"],
+      "approx_nightly_rate": 900,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/giraffe-manor-1/800/600",
+        "https://picsum.photos/seed/giraffe-manor-2/800/600",
+        "https://picsum.photos/seed/giraffe-manor-3/800/600"
+      ],
+      "rooms": [
+        { "name": "Standard Room", "rate_delta": 0 },
+        { "name": "Garden Room", "rate_delta": 200 }
+      ]
+    },
+    {
+      "id": "angama-mara",
+      "name": "Angama Mara",
+      "brand": null,
+      "country": "Kenya",
+      "region": "Narok County",
+      "city": "Masai Mara",
+      "latitude": -1.2700,
+      "longitude": 34.9600,
+      "nearest_airport": {
+        "iata": "NBO",
+        "name": "Jomo Kenyatta International Airport"
+      },
+      "access_notes": "Scheduled light aircraft from Nairobi Wilson Airport to the lodge's private airstrip, approximately 45 minutes. Transfer from Jomo Kenyatta International to Wilson Airport is 25 minutes by road.",
+      "description": "Lodge perched on the rim of the Great Rift Valley escarpment, directly overlooking the Mara Triangle where the wildebeest migration crosses the Mara River. The elevated position creates one of the most dramatic viewpoints in East African safari. All-inclusive rates cover game drives, meals, and beverages.",
+      "tags": ["luxury", "safari", "all-inclusive"],
+      "approx_nightly_rate": 1500,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/angama-mara-1/800/600",
+        "https://picsum.photos/seed/angama-mara-2/800/600",
+        "https://picsum.photos/seed/angama-mara-3/800/600",
+        "https://picsum.photos/seed/angama-mara-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Tented Suite", "rate_delta": 0 }
+      ]
+    },
+    {
+      "id": "andbeyond-ngorongoro",
+      "name": "andBeyond Ngorongoro Crater Lodge",
+      "brand": "andBeyond",
+      "country": "Tanzania",
+      "region": "Arusha",
+      "city": "Ngorongoro Conservation Area",
+      "latitude": -3.2200,
+      "longitude": 35.5100,
+      "nearest_airport": {
+        "iata": "JRO",
+        "name": "Kilimanjaro International Airport"
+      },
+      "access_notes": "Road transfer via Arusha, approximately four to five hours from Kilimanjaro International. Alternatively, fly from Arusha Airport (ARK) to Lake Manyara airstrip, then a 90-minute game drive to the lodge.",
+      "description": "Positioned on the rim of the Ngorongoro Crater with direct views into the caldera, one of the most dramatic settings in East African safari. All-inclusive rates cover game drives into the crater floor, all meals, and beverages. Pairs naturally with a Serengeti extension for the full northern Tanzania circuit.",
+      "tags": ["luxury", "safari", "all-inclusive"],
+      "approx_nightly_rate": 2000,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/ngorongoro-lodge-1/800/600",
+        "https://picsum.photos/seed/ngorongoro-lodge-2/800/600",
+        "https://picsum.photos/seed/ngorongoro-lodge-3/800/600"
+      ],
+      "rooms": [
+        { "name": "Suite", "rate_delta": 0 }
+      ]
+    },
+    {
+      "id": "singita-grumeti",
+      "name": "Singita Grumeti",
+      "brand": "Singita",
+      "country": "Tanzania",
+      "region": "Mara",
+      "city": "Serengeti",
+      "latitude": -2.0800,
+      "longitude": 34.5200,
+      "nearest_airport": {
+        "iata": "JRO",
+        "name": "Kilimanjaro International Airport"
+      },
+      "access_notes": "Bush flight via Grumeti Air or Coastal Aviation to Sasakwa airstrip, approximately one hour from Kilimanjaro International or Arusha Airport. Ten-minute transfer from the airstrip. Not road-accessible for guests.",
+      "description": "Set within a 350,000-acre private concession in the western Serengeti, offering exclusive game-viewing with very low vehicle density. All-inclusive rates cover twice-daily game drives, all meals, and a premium drinks list. A top-tier choice for clients prioritising wildlife density and privacy over social safari culture.",
+      "tags": ["luxury", "safari", "all-inclusive", "eco"],
+      "approx_nightly_rate": 2500,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/singita-grumeti-1/800/600",
+        "https://picsum.photos/seed/singita-grumeti-2/800/600",
+        "https://picsum.photos/seed/singita-grumeti-3/800/600",
+        "https://picsum.photos/seed/singita-grumeti-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Suite", "rate_delta": 0 },
+        { "name": "Villa Suite", "rate_delta": 800 }
+      ]
+    },
+    {
+      "id": "aman-tokyo",
+      "name": "Aman Tokyo",
+      "brand": "Aman",
+      "country": "Japan",
+      "region": "Kanto",
+      "city": "Tokyo",
+      "latitude": 35.6856,
+      "longitude": 139.7653,
+      "nearest_airport": {
+        "iata": "HND",
+        "name": "Tokyo Haneda Airport"
+      },
+      "access_notes": "40-minute drive from Haneda Airport. Also accessible from Narita International, approximately 75 minutes.",
+      "description": "Minimalist Japanese design occupying the top floors of the Otemachi Tower, with panoramic views across the Imperial Palace gardens and the city skyline. The spa draws on traditional onsen bathing and is a standout feature. A strong city anchor for itineraries continuing to Kyoto or into Southeast Asia.",
+      "tags": ["luxury", "city", "spa", "wellness"],
+      "approx_nightly_rate": 1100,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/aman-tokyo-1/800/600",
+        "https://picsum.photos/seed/aman-tokyo-2/800/600",
+        "https://picsum.photos/seed/aman-tokyo-3/800/600",
+        "https://picsum.photos/seed/aman-tokyo-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Deluxe Room", "rate_delta": 0 },
+        { "name": "Premier Room", "rate_delta": 400 },
+        { "name": "Corner Suite", "rate_delta": 900 }
+      ]
+    },
+    {
+      "id": "park-hyatt-kyoto",
+      "name": "Park Hyatt Kyoto",
+      "brand": "Hyatt",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Kyoto",
+      "latitude": 34.9975,
+      "longitude": 135.7795,
+      "nearest_airport": {
+        "iata": "KIX",
+        "name": "Kansai International Airport"
+      },
+      "access_notes": "Haruka Express from Kansai International to Kyoto Station, approximately 75 minutes, then 15 minutes by taxi or hotel car to the Higashiyama district.",
+      "description": "Located in the Higashiyama district on the slopes below Kodai-ji Temple, within walking distance of Ninenzaka, Sannenzaka, and Yasaka Shrine. The design references traditional machiya townhouses while delivering full international five-star amenities. A strong base for clients who want to explore Kyoto's temple district on foot.",
+      "tags": ["luxury", "city"],
+      "approx_nightly_rate": 900,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/park-hyatt-kyoto-1/800/600",
+        "https://picsum.photos/seed/park-hyatt-kyoto-2/800/600",
+        "https://picsum.photos/seed/park-hyatt-kyoto-3/800/600",
+        "https://picsum.photos/seed/park-hyatt-kyoto-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Deluxe Room", "rate_delta": 0 },
+        { "name": "Suite", "rate_delta": 600 }
+      ]
+    },
+    {
+      "id": "hoshinoya-kyoto",
+      "name": "Hoshinoya Kyoto",
+      "brand": "Hoshino Resorts",
+      "country": "Japan",
+      "region": "Kansai",
+      "city": "Kyoto",
+      "latitude": 35.0137,
+      "longitude": 135.6743,
+      "nearest_airport": {
+        "iata": "KIX",
+        "name": "Kansai International Airport"
+      },
+      "access_notes": "Rail to Kyoto Station then taxi to the Togetsukyo boat pier in Arashiyama, approximately 25 minutes. The hotel's private boat carries guests up the Oi River in ten minutes. There is no road access to the property.",
+      "description": "A riverside retreat in the Arashiyama gorge, accessible only by the hotel's private boat. The converted Meiji-era estate draws on ryokan traditions with tatami rooms, seasonal kaiseki, and an emphasis on quiet contemplation. Best for clients seeking a traditional Japanese immersion rather than a conventional luxury hotel experience.",
+      "tags": ["luxury", "boutique", "heritage", "wellness"],
+      "approx_nightly_rate": 700,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/hoshinoya-kyoto-1/800/600",
+        "https://picsum.photos/seed/hoshinoya-kyoto-2/800/600",
+        "https://picsum.photos/seed/hoshinoya-kyoto-3/800/600"
+      ],
+      "rooms": [
+        { "name": "River View Room", "rate_delta": 0 },
+        { "name": "Garden Suite", "rate_delta": 400 }
+      ]
+    },
+    {
+      "id": "hotel-de-russie-rome",
+      "name": "Hotel de Russie",
+      "brand": "Rocco Forte Hotels",
+      "country": "Italy",
+      "region": "Lazio",
+      "city": "Rome",
+      "latitude": 41.9099,
+      "longitude": 12.4774,
+      "nearest_airport": {
+        "iata": "FCO",
+        "name": "Leonardo da Vinci-Fiumicino Airport"
+      },
+      "access_notes": "30-minute drive or fixed-fare taxi from Fiumicino Airport to central Rome.",
+      "description": "Rocco Forte property tucked between Piazza del Popolo and the Spanish Steps, with a terraced secret garden that makes it feel removed from the city despite being in the historic centre. Confirmed pet-friendly with a published policy accepting dogs of any size. A natural Rome base for itineraries continuing south to the Amalfi Coast.",
+      "tags": ["luxury", "city", "spa", "pet-friendly", "heritage"],
+      "approx_nightly_rate": 800,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/hotel-de-russie-1/800/600",
+        "https://picsum.photos/seed/hotel-de-russie-2/800/600",
+        "https://picsum.photos/seed/hotel-de-russie-3/800/600",
+        "https://picsum.photos/seed/hotel-de-russie-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Classic Room", "rate_delta": 0 },
+        { "name": "Deluxe Room", "rate_delta": 200 }
+      ]
+    },
+    {
+      "id": "belmond-caruso-ravello",
+      "name": "Belmond Hotel Caruso",
+      "brand": "Belmond",
+      "country": "Italy",
+      "region": "Campania",
+      "city": "Ravello",
+      "latitude": 40.6514,
+      "longitude": 14.6130,
+      "nearest_airport": {
+        "iata": "NAP",
+        "name": "Naples International Airport"
+      },
+      "access_notes": "75 to 90 minutes by private car from Naples Airport via the Amalfi Coast road. Helicopter transfers available. The hotel runs courtesy shuttles to Amalfi and Positano.",
+      "description": "An eleventh-century palace perched above the Amalfi Coast, with an infinity pool that has become one of the most photographed hotel views in Europe. Ideal as a three-to-five night base for clients exploring the coast by private boat. Quieter and more refined than the Positano alternatives.",
+      "tags": ["luxury", "boutique", "heritage", "spa"],
+      "approx_nightly_rate": 1200,
+      "currency": "USD",
+      "images": [
+        "https://picsum.photos/seed/belmond-caruso-1/800/600",
+        "https://picsum.photos/seed/belmond-caruso-2/800/600",
+        "https://picsum.photos/seed/belmond-caruso-3/800/600",
+        "https://picsum.photos/seed/belmond-caruso-4/800/600"
+      ],
+      "rooms": [
+        { "name": "Junior Suite", "rate_delta": 0 },
+        { "name": "Deluxe Suite", "rate_delta": 600 }
+      ]
+    }
+  ]
+}

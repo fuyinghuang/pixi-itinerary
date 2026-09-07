@@ -8,19 +8,21 @@ reasoning — what was considered, what was chosen, and why — is in
 [`docs/APPROACH.md`](docs/APPROACH.md). A running build journal is in
 [`BUILD_LOG.md`](BUILD_LOG.md).
 
-> **Status: documentation scaffold.** The backend and frontend have not
-> been built yet. The only thing that runs today is dataset validation.
-> Setup instructions for the application are added here once those
-> projects exist and have been verified — not before.
+> **Status: backend complete, frontend not started.** The API generates and
+> recomputes itineraries and is covered by 88 tests. There is no user
+> interface yet, so the journey below runs over HTTP rather than in a
+> browser. Frontend setup steps are added here once that exists and has
+> been verified.
 
-## What it will do
-
-_Planned product behaviour. None of this runs yet — see Status above._
+## What it does
 
 A designer pastes the client's own words — *"10 days in South Africa for
 our anniversary, a few days in Cape Town, some time in the winelands, then
 safari to finish"* — and gets back a day-by-day itinerary they can adjust
 and then present to the client.
+
+Generation and editing work today through the API. The designer and client
+views are not built yet.
 
 The journey:
 
@@ -33,15 +35,15 @@ client brief
   → client-facing preview
 ```
 
-The model will handle judgement and language: interpreting the brief,
-choosing properties, sequencing stops, allocating nights, and writing the
-rationale and narrative. It may propose planning values such as nights per
-stop.
+The model handles judgement and language: interpreting the brief, choosing
+properties, sequencing stops, allocating nights, and writing the rationale
+and narrative. It may propose planning values such as nights per stop.
 
-It will not author derived prices, distances, transfer durations, or
+It does not author derived prices, distances, transfer durations, or
 calculated totals. Those come from deterministic Python or directly from
 supplied dataset fields, and every hotel referenced is validated against
-the supplied catalogue.
+the supplied catalogue. The boundary is enforced by the schema rather than
+by instruction: the model's response has no field a price could occupy.
 
 ## Stack
 
@@ -58,7 +60,7 @@ FastAPI and Vite are our choices — see
 ## Prerequisites
 
 - Python 3.9 or later
-- An Anthropic API key (required once the LLM integration exists)
+- An Anthropic API key, for generating itineraries
 
 Frontend prerequisites are documented once the frontend is scaffolded and
 its toolchain requirements are verified.
@@ -82,7 +84,39 @@ python3 data/validate.py
 # expected: OK: 12 hotels across 5 countries — all valid.
 ```
 
-This is the only command that works today.
+### Backend
+
+```bash
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pytest                                    # 88 tests
+uvicorn app.main:app --reload             # http://localhost:8000
+```
+
+Check it came up, and that the catalogue loaded:
+
+```bash
+curl -s localhost:8000/api/health
+# {"status":"ok","hotels":12,"regions":[...],"planner_configured":true}
+```
+
+`planner_configured` reports whether `ANTHROPIC_API_KEY` was found. The
+tests need neither a key nor a network — only itinerary generation does.
+
+### Frontend
+
+Not built yet.
+
+## API
+
+| Method | Path | |
+|---|---|---|
+| `GET` | `/api/health` | Catalogue size, supported regions, whether a key is configured |
+| `POST` | `/api/itineraries` | A brief in, an itinerary out. Returns 200 with an unsupported-brief response when the catalogue cannot serve the destination — that is a product outcome, not an error |
+| `POST` | `/api/itineraries/recompute` | Designer edits — change nights, replace a hotel. Deterministic; no model call |
+
+Interactive docs at `http://localhost:8000/docs`.
 
 ## Environment variables
 
@@ -93,13 +127,13 @@ committed.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | yes | Interpreting the brief and generating the itinerary |
 
-Further variables are documented here as the backend and frontend are
-built and their configuration is actually established.
+Further variables are documented here as the frontend is built and its
+configuration is actually established.
 
 ## Repository layout
 
 ```text
-backend/      FastAPI application and deterministic logic   (not yet)
+backend/      FastAPI application and deterministic logic
 frontend/     React + TypeScript application                (not yet)
 data/         Supplied PIXI dataset + validate.py           (read-only)
 docs/         APPROACH.md — product narrative

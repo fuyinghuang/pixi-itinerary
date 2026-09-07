@@ -145,66 +145,239 @@ and visual quality, which is where a DAM company will actually look.
 
 ### `AGENTS.md` review
 
-Reviewed the working agreement before implementation and restructured it.
-The substantive changes:
+The working agreement was split into **Invariants** (true regardless of
+scope) and **Current MVP Scope** (time-boxed and revisable). "No
+persistence" had been carrying the same weight as "no hallucinated hotels",
+which is how a timebox decision quietly becomes a claimed architectural
+position.
 
-- Split "Product and Architecture Invariants" into **Invariants** (true
-  regardless of scope) and **Current MVP Scope** (time-boxed and
-  revisable). Previously, "no persistence" carried the same weight as "no
-  hallucinated hotels", which is how a timebox decision quietly becomes a
-  claimed architectural position.
-- Promoted "never commit secrets" from a buried bullet back to a numbered
-  rule — it is an explicit assignment deliverable.
-- Added three missing operational invariants: `data/` is read-only, nights
-  arithmetic (every stop ≥ 1 night, nights sum to the requested duration),
-  and the failure path (one repair attempt, then a graceful recoverable
-  error state, never a 500 or a blank screen).
-- Made the pricing formula explicit so an agent cannot silently decide
-  whether to apply `rate_delta`.
-- Named the four supported regions and specified an honest
-  unsupported-state response, which had been missing entirely despite
-  being the first thing unscripted input will hit.
-- Removed a Boundaries section in which nine of twelve bullets restated
-  rules stated elsewhere — duplicated rules drift.
+Three of the review's own recommendations were rejected:
 
-Two of the review's own recommendations were rejected on further review:
-
-- *"The LLM must not emit these values at all"* was too broad, since the
-  model legitimately emits `nights_per_stop`. Narrowed to derived prices,
-  distances, transfer durations and calculated totals.
-- *"`access_notes` verbatim, never paraphrased"* was too rigid for
-  producing readable client-facing copy. Relaxed: `access_notes` is the
-  source of truth, and narrative must not introduce specifics the field
-  does not contain.
-- *"one repair attempt, then a deterministic fallback"* promised a
-  fallback that has not been designed yet. Softened to a graceful,
-  recoverable error state, to be upgraded once a real fallback exists.
-  Documentation should not commit to behaviour ahead of the design.
-
-### Documentation aligned
-
-Updated `README.md` to match the locked decisions and the actual state of
-the repository: removed the shareable-link wording in favour of an in-app
-client preview, corrected the over-broad claim that the model never emits
-any number, removed setup commands for a backend and frontend that do not
-exist, and reduced the environment table to the one variable actually
-established. `python3 data/validate.py` remains documented because it
-genuinely works.
-
-Created `docs/APPROACH.md` as a working skeleton and this build log.
-
-### Incidents
-
-`AGENTS.md` was accidentally overwritten with prompt text during the
-session. There were no commits, so nothing to restore from — the content
-was recovered from the session context. This is the reason the
-documentation scaffold is being committed before implementation begins.
+- *"The LLM must not emit these values at all"* — too broad. Planning
+  values such as stop nights are legitimately model-owned. Narrowed to
+  derived prices, distances, travel durations and calculated totals.
+- *"`access_notes` verbatim, never paraphrased"* — too rigid for readable
+  client-facing copy. Supplied data remains the source of truth, and
+  narrative may paraphrase without introducing specifics the field does not
+  contain.
+- *"One repair attempt, then a deterministic fallback"* — promised
+  behaviour that had not been designed. Corrected to a graceful,
+  recoverable error state.
 
 ---
 
-## Session 2 — _pending_
+## Session 2 — First commit and the contract review
 
+**Date:** 2026-09-06
 **Time:** _pending_
+
+### A verification pass before committing
+
+Rule applied to a prose-only commit: every falsifiable claim must have a
+command that proves it.
+
+It caught a fabricated statistic. An AI-written passage claimed four images per
+property; counting gives 46 across twelve — three with 3, eight with 4, one
+with 5. Plausible, adjacent to the truth, and wrong. Re-reading would have
+confirmed it; only counting caught it. It became invariant §10: layout is
+driven by the image list, never a fixed count. The model may judge, but figures
+come from the data.
+
+Also fixed:
+
+- A stale `§13` cross-reference left by renumbering `APPROACH.md`.
+- An `ANTHROPIC_MODEL` default in `README.md` that no code implements.
+
+First commit `fe3769c` — 11 files.
+
+### Days are not nights
+
+Found while reviewing `AGENTS.md` against the agreed API contract, before any
+schema code was written.
+
+**Original rule.** Invariant 7 read *"Nights across stops sum to the requested
+trip duration"*, and the contract carried a single `duration_nights` figure.
+
+**Challenge.** A ten-day trip is not ten nights. Treating the client's stated
+figure as a night count silently equates two different units.
+
+**Evidence.** The dataset prices per night, so the error is not cosmetic: a
+ten-day brief priced as ten nights overstates accommodation by a full night —
+at Londolozi's $1,800 rate, $1,800 on a client-facing figure, in a domain where
+the distinction is standard practice. Nothing in the repository or the
+assignment supported the equation.
+
+**Final decision.** Trip length is a value plus a unit, normalised
+deterministically: N days → N − 1 accommodation nights; N nights → N nights.
+Stop nights sum to the accommodation-night total, never the day count.
+
+**Why.** One unit runs through pricing, validation and day numbering while the
+client's own words survive for display.
+
+Same pass: `trip_region` named and distinguished from the dataset's
+sub-national `region`, hotel replacement constrained to one region, unsupported
+briefs defined as HTTP 200 outcomes. `python3 data/validate.py` passes.
+
+---
+
+## Session 3 — Backend domain layer
+
+**Date:** 2026-09-07
+**Time:** _pending_
+
+### Slice: catalogue, contract, itinerary logic
+
+Built
+
+- `app/catalogue.py` — the supplied dataset loaded once, frozen dataclasses,
+  explicit country → `trip_region` map, fail-loud on an unmapped country.
+- `app/schemas.py` — the canonical contract. Planner models set
+  `extra="forbid"`, so a model emitting a price or a duration is a schema
+  error rather than a field silently dropped.
+- `app/itinerary.py` — normalisation, collected domain validation, and
+  deterministic construction. No LLM, no environment, no HTTP.
+
+Decision
+
+- The catalogue is stdlib frozen dataclasses rather than Pydantic models.
+  `data/validate.py` already owns supplied-data validation, so validating
+  again on load would duplicate it. An experiment confirmed the dataclass
+  nests in a Pydantic response model without copying, so there is one hotel
+  representation rather than two and no converter.
+
+Verification
+
+- 61 tests pass (7 catalogue, 20 schema, 34 itinerary).
+- `python3 data/validate.py` passes.
+
+### Slice: planner and API
+
+Built
+
+- `app/planner.py` — the live Anthropic path. Structured output via
+  `messages.parse`, so the Pydantic models are the schema; one repair
+  attempt on invalid output, then a recoverable error. No fixture fallback.
+- `app/main.py` — `/api/itineraries`, `/api/itineraries/recompute`, and a
+  health route reporting catalogue size and whether a key is configured.
+
+Verification
+
+- One real call on the worked-example South Africa brief succeeded first
+  attempt: 10 days read as 10 days, 9 accommodation nights, three stops, no
+  violations, no repair. Baseline latency **16.96s**, unmitigated for now.
+- 88 backend tests pass; `python3 data/validate.py` passes.
+- That response is captured at
+  `backend/tests/fixtures/south_africa_anniversary_planned.json` for tests
+  and frontend development. No production code path reads it.
+
+### Recompute must not carry a trip length it does not own
+
+**Original proposal.** `RecomputeRequest` would carry the full
+`TripLength(value, unit)`, and stop nights would have to sum to the
+accommodation nights it implied — the same rule as generation.
+
+**Challenge.** That makes the primary edit control fail almost every time it
+is used. On a ten-day trip with stops of 3/2/4, moving Cape Town from three
+nights to four gives a sum of ten against nine expected, and recompute
+returns 422. Forcing a compensating decrease elsewhere is not the gesture a
+designer is making: adding a night means the trip got longer.
+
+**Evidence.** The first fix — derive the length from the stop sum, ignore the
+client's value — left the request carrying a field the backend discards, which
+is the kind of quiet mismatch `extra="forbid"` exists to prevent. The second
+version then reintroduced the days/nights conflation that invariant 7 was
+written to stop: bounding the sum at 30 nights is wrong for a day-stated trip,
+because 30 accommodation nights is a valid 30-night trip but an invalid
+31-day one.
+
+**Final decision.** `RecomputeRequest` carries `trip_length_unit` only.
+Accommodation nights are derived from the edited stop sum; the stated value is
+derived from those nights with the original unit preserved. The bound is
+applied to the *derived stated value*, not to the night count, so
+`MAX_TRIP_LENGTH` keeps one meaning regardless of unit. The nights-total check
+remains on the generation path, where the model must respect the length it
+read from the brief.
+
+**Why.** The client can no longer send a value the backend ignores, the
+day/night distinction holds on both paths, and "add a night" does what a
+designer expects. Boundary tests pin all four cases: 29 nights + days valid,
+30 nights + days rejected, 30 nights + nights valid, 31 nights + nights
+rejected.
+
+### No field in the API may look like a routing claim
+
+**AI proposal.** Each stop would carry an `Arrival` block with
+`from_airport`, `to_airport`, `access_notes`, and a derived
+`requires_flight` boolean set when the two airport codes differed.
+
+**Challenge.** `requires_flight` is inference, not a supplied fact — a
+leftover from the routing engine that survived its removal. Then, once that
+was cut: even a bare airport pair can be read as a route or a transport
+claim, which is the same failure in quieter form.
+
+**Evidence.** The legs that killed the routing engine kill this too.
+Giraffe Manor and Angama Mara both list `NBO`, so differing-code logic
+reports no flight, while the supplied notes describe a scheduled light
+aircraft from Nairobi Wilson. Displaying an origin and destination airport
+side by side invites a reader to draw exactly that wrong conclusion.
+
+**Final decision.** `requires_flight` removed first; then `Arrival` removed
+entirely. `Hotel` is already embedded whole in each stop and carries
+`nearest_airport` and `access_notes` as supplied, so the second carrier
+added nothing but a place for inference to reappear.
+
+**Why.** No field in the public contract can now be mistaken for a claim
+about how a guest travels, and the stop shape got smaller rather than
+larger. The routing decision is enforced by the shape of the API rather
+than by remembering it.
+
+### The planner is given the supplied `access_notes`
+
+**AI proposal.** Withhold `access_notes` from the planner prompt entirely.
+If the model never sees *"approximately 45 minutes"*, it cannot paraphrase
+it into narrative — the leak becomes structurally impossible rather than
+prompt-policed.
+
+**Challenge.** That removes real information. Access character drives
+pacing: a property reached by light aircraft should not be a one-night
+stop. Withholding it trades product quality for a guarantee we may not
+need.
+
+**Evidence.** Measurement, not argument. The prose costs ~500 tokens on a
+~1,700-token payload, so cost was never the reason. The claim that
+`description` already carries the signal is false: `andbeyond-ngorongoro`
+and `singita-grumeti` are both fly-in with no access hint in their
+descriptions, while `belmond-caruso-ravello` mentions a boat but is a road
+transfer. The middle option — a hand-authored `access_character` label —
+looked verifiable until `andbeyond-ngorongoro`, whose notes describe both a
+four-to-five hour road transfer *and* a flight via Arusha. Any single label
+there is a fact we invented about a property.
+
+**Final decision.** Supply the full `access_notes`. The model may use it to
+pace and may paraphrase it, but must not introduce specifics the field does
+not contain, and must not derive route, distance, duration, transport mode
+or feasibility. No `access_character` layer.
+
+**Why.** Use the authoritative source directly rather than withholding
+evidence or inventing a second interpretation of it. Confirmed on the first
+live call: Londolozi was given four nights — the longest stop — with the
+model's own reasoning that it is *"reached by charter flight… so it earns a
+longer stay."* That pacing judgement is unavailable without the field. Every
+transfer statement in the generated copy traced to supplied text, and no
+fabrication appeared.
+
+The guard is prompt-level, not structural: `rationale` and `narrative` are
+free text, so an invented duration would pass. This sample was clean, which
+is evidence rather than a guarantee.
+
+### `southern-africa` renamed to `south-africa`
+
+The `trip_region` slug was proposed as `southern-africa`. The catalogue
+covers one country, so that name claims coverage of Botswana, Namibia and
+Zimbabwe that the supplied data does not support — the invented-precision
+problem, in an identifier. `AGENTS.md` already named the region "South
+Africa"; the proposal contradicted it and had not been checked against the
+file. Renamed to `south-africa`.
 
 ---
 

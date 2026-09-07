@@ -1,0 +1,7 @@
+# Pinned. Dependencies are added by the slice that needs them, so this file
+# never claims something the code does not use.
+
+pydantic==2.10.4
+
+# test only
+pytest==8.3.4

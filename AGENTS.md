@@ -33,15 +33,16 @@ inputs come from `data/hotels.json`. Never from generated text.
 ### 2. Derived facts are deterministic
 
 The LLM may emit planning values it is responsible for, including
-`nights_per_stop` and stop ordering.
+`stops[].nights`, stop ordering, and the trip length value and unit
+extracted from the client's brief.
 
-The LLM must not emit derived prices, distances, transfer durations,
-calculated totals, or other authoritative derived values. These come from
-deterministic Python or from supplied dataset fields.
+The LLM must not emit derived prices, distances, travel or transfer
+durations, calculated totals, or other authoritative derived values. These
+come from deterministic Python or from supplied dataset fields.
 
-Enforce this structurally: the model's response schema contains no price,
-distance, or duration fields, so a violation is a schema error rather than
-something to catch in review.
+Enforce this structurally: the model's response schema must contain no
+price, distance, or travel-duration field, so a violation is a schema error
+rather than something to catch in review.
 
 ### 3. Hotel IDs are validated
 
@@ -49,22 +50,25 @@ Every `hotel_id` returned by the LLM is validated against
 `data/hotels.json` before use. Never display or reference a hotel that is
 not in the supplied catalogue.
 
-### 4. Geographic support is explicit
+### 4. Geographic support is explicit (`trip_region`)
 
-The catalogue supports four coherent regions:
+The catalogue supports four coherent `trip_region` values — distinct from
+the dataset's own `region` field, which is sub-national (`"Western Cape"`,
+`"Kanto"`):
 
 - South Africa
 - East Africa (Kenya and Tanzania, which pair as one cross-border circuit)
 - Japan
 - Italy
 
-An itinerary stays within one region. Do not combine unsupported regions.
+An itinerary stays within one `trip_region`. Do not combine regions.
+Replacing a hotel is constrained to the same `trip_region`.
 
-If a brief names a destination the catalogue cannot coherently support,
-return an honest unsupported-state response that says what PIXI's library
-covers and offers supported alternatives. Never substitute a different
-destination and present it as if it were requested. Never fail with an
-error or an empty screen — evaluators will type unscripted input.
+An unsupported brief is a normal product outcome, not an API error. Return
+HTTP 200 with the typed unsupported-brief response, including the supported
+regions and useful alternatives. Never substitute a different destination
+and present it as if it were requested. Never fail with an error or an
+empty screen — evaluators will type unscripted input.
 
 ### 5. Transfer facts remain grounded
 
@@ -95,9 +99,17 @@ taxes, or booking fees. Do not invent pricing assumptions silently.
 
 ### 7. Nights arithmetic
 
-Every stop has at least one night. Nights across stops sum to the
-requested trip duration. On violation, repair or reject — never silently
-adjust the numbers to make a plan fit.
+A brief states trip length in days or nights. Normalise it deterministically:
+
+- N days → N − 1 accommodation nights
+- N nights → N accommodation nights
+
+Every stop has at least one night, and nights across stops sum to the
+accommodation-night total — never to the day count. Preserve the stated
+value and unit; days and nights are never equated.
+
+On violation, repair or reject — never silently adjust the numbers to make
+a plan fit.
 
 ### 8. Failure and repair behaviour
 
@@ -220,8 +232,10 @@ Do not claim a change works unless it has been verified.
 
 Before suggesting a commit: run the relevant checks, review the diff, check
 for unrelated changes, check for secrets or environment files, check for
-generated or temporary files, and confirm the change forms one coherent
-unit.
+generated or temporary files, confirm the change forms one coherent unit,
+and ask what input would break it.
+
+Report what you found, including problems you did not fix and why.
 
 ## Working Agreement
 
@@ -242,6 +256,37 @@ Work as a senior engineering partner, not an autonomous code generator.
 Optimise for correctness, clarity, product value, and the smallest
 defensible implementation. Every important technical and product decision
 should be explainable to a colleague who has not read this file.
+
+## Decision Journal
+
+`BUILD_LOG.md` records decisions, not terminal history. Update it without
+being asked after a meaningful implementation slice or decision milestone:
+what was built, the non-obvious trade-offs, what was verified, and any
+disagreement that changed the product or the architecture.
+
+Keep an implementation slice to roughly 5–10 lines:
+
+```text
+### Slice: <name>
+
+Built         what changed, and the files it produced
+Decision      2–4 sentences, only when the choice was not obvious
+Verification  what ran, and the result
+Correction    None, or the format below
+```
+
+Report a material disagreement before acting on it. Once resolved, log the
+outcome under the current session as:
+
+- **Original proposal or rule** · **Challenge** · **Evidence** ·
+  **Final decision** · **Why**
+
+Expand to 10–20 lines only for a disagreement that materially changed the
+product or the architecture. Everything else stays short.
+
+Do not log unresolved debate, trivial wording or naming differences, or which
+command was retried. Never invent elapsed time — leave it `_pending_`. Do not
+rewrite earlier entries to fit a newer format; correct facts, keep the record.
 
 ## Running the App
 

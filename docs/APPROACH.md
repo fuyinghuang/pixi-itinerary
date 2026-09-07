@@ -151,7 +151,10 @@ Keeping these separate matters — we should be able to say which is which.
 
 ## 9. Assumptions
 
-- Trip length arrives as a duration ("10 days"), not as calendar dates.
+- Trip length arrives as a duration ("10 days"), not as calendar dates. It
+  is stated in days or nights and normalised deterministically: N days →
+  N − 1 accommodation nights; N nights → N nights. Days and nights are
+  never equated.
 - Pricing is accommodation only: `nights × approx_nightly_rate`, base room
   category, one room, USD. Indicative, not quoted.
 - `rooms[].rate_delta` is deliberately unused. Room-category selection is

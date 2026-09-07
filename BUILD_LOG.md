@@ -422,6 +422,67 @@ Correction
   a flex layout: hero at full width, the rest sharing one row evenly whatever
   their number. Verified at all three counts rather than reasoned about.
 
+### Slice: itinerary editing
+
+**Time:** ~1.25h
+
+Built
+
+- `RecomputeRequest` and `recomputeItinerary` — the API surface deliberately
+  withheld from the previous slice until the controls needed it.
+- Inline editing on each stop card: a nights stepper and a replacement
+  dropdown drawn from `replacement_options`, with an explicit message where
+  the region has no spare properties.
+
+Verification
+
+- Live in the browser: adding a night to a Kenya/Tanzania trip shifted every
+  downstream day range, re-derived the trip length to 15 days, and moved the
+  total to $24,700 across 14 nights. Replacement verified in Italy and Japan;
+  the no-alternative state in East Africa and South Africa.
+- `npm run build`, `oxlint`, 88 backend tests and `data/validate.py` all pass.
+
+### Model-authored copy does not survive a deterministic edit
+
+**AI proposal.** Carry the model's `rationale` and `narrative` through
+recompute unchanged, so the itinerary keeps its explanatory copy without a
+second model call.
+
+**Challenge.** An edit can make that prose stale, or false. Replacing Hotel
+de Russie with Belmond Hotel Caruso left the Rome rationale — *"the single
+Rome property in the catalogue"* — attached to a hotel in Ravello. Adding a
+night left a narrative still describing the old night count.
+
+**Evidence.** The structured itinerary recomputed correctly in every case:
+day ranges, trip length, subtotals and total. Only the free-text fields went
+stale. Re-running the planner on each edit would fix the copy but costs the
+measured ~17s per click and could quietly change unrelated planning
+decisions.
+
+**Final decision.** Keep edits deterministic and fast; do not re-run the
+model. Instead, make the current itinerary authoritative and demote the
+model's copy to historical context:
+
+- The replaced stop's rationale is cleared, and the block renders only when
+  it has content. No substitute copy — not workflow text such as "swapped in
+  by the designer", which would leak process language into the client-facing
+  view, and not the hotel's supplied `description`, which would sit where a
+  rationale sits and borrow an authority the model never gave it.
+- The itinerary heading is derived from current data — region, trip length,
+  stop count — so it cannot go stale.
+- `interpreted_brief` and `narrative` are kept but demoted and labelled
+  *Original brief interpretation* and *Original proposal narrative*.
+
+**Why.** Fast, controlled editing is the point of the deterministic layer,
+and an absent rationale is truthful where a stale one is not — the model did
+not choose this property. Labelling the model's prose was not enough on its
+own: it was rendered as the headline, so a nine-day itinerary was titled "an
+anniversary trip of 10 days" directly beneath a line reading 9 days. The
+fix is not to hide the stale text but to reorder authority — current state
+first, AI proposal as traceable history. In production these are separable
+concerns, with an explicit "refresh the copy" action when a designer wants
+the prose rewritten.
+
 ---
 
 ## Time summary

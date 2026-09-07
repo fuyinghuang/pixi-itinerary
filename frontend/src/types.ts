@@ -84,6 +84,29 @@ export interface UnsupportedBriefResponse {
   supported_regions: TripRegion[];
 }
 
+/** One stop as the designer has edited it. */
+export interface RecomputeStop {
+  hotel_id: string;
+  nights: number;
+  rationale: string;
+}
+
+/**
+ * A designer edit. Only the fields the designer owns are sent — prices,
+ * day numbers and hotel content are recomputed from the catalogue.
+ *
+ * The trip length is carried as a unit alone. Changing a stop's nights is
+ * allowed to change how long the trip is, so the backend derives the new
+ * length from the edited stops rather than trusting a value from here.
+ */
+export interface RecomputeRequest {
+  trip_region: TripRegion;
+  trip_length_unit: TripLengthUnit;
+  interpreted_brief: string;
+  narrative: string;
+  stops: RecomputeStop[];
+}
+
 export interface ErrorResponse {
   code: "planner_unavailable" | "planner_invalid_output" | "invalid_request";
   message: string;

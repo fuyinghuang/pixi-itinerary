@@ -1,9 +1,14 @@
 import { useRef, useState } from "react";
 
-import { ApiError, generateItinerary } from "./api";
+import { ApiError, generateItinerary, recomputeItinerary } from "./api";
 import BriefForm from "./components/BriefForm";
 import ItineraryView from "./components/ItineraryView";
-import type { Itinerary, UnsupportedBriefResponse } from "./types";
+import type {
+  Itinerary,
+  RecomputeRequest,
+  RecomputeStop,
+  UnsupportedBriefResponse,
+} from "./types";
 import { REGION_LABELS, isItinerary } from "./types";
 
 /**
@@ -18,9 +23,19 @@ type View =
   | { kind: "unsupported"; data: UnsupportedBriefResponse }
   | { kind: "error"; message: string; retryable: boolean };
 
+/** The stops as the designer owns them: what to send back on an edit. */
+const toEditableStops = (itinerary: Itinerary): RecomputeStop[] =>
+  itinerary.stops.map((stop) => ({
+    hotel_id: stop.hotel.id,
+    nights: stop.nights,
+    rationale: stop.rationale,
+  }));
+
 export default function App() {
   const [brief, setBrief] = useState("");
   const [view, setView] = useState<View>({ kind: "idle" });
+  const [busy, setBusy] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   const inFlight = useRef<AbortController | null>(null);
 
   async function build() {
@@ -32,6 +47,7 @@ export default function App() {
     const controller = new AbortController();
     inFlight.current = controller;
 
+    setEditError(null);
     setView({ kind: "loading" });
 
     try {
@@ -58,6 +74,62 @@ export default function App() {
     }
   }
 
+  /**
+   * Apply an edit by asking the backend to rebuild the itinerary. Nothing is
+   * computed here — every price, day range and total comes back from the
+   * catalogue, so an optimistic local guess would only be able to be wrong.
+   */
+  async function applyEdit(current: Itinerary, stops: RecomputeStop[]) {
+    inFlight.current?.abort();
+    const controller = new AbortController();
+    inFlight.current = controller;
+
+    setBusy(true);
+    setEditError(null);
+
+    const request: RecomputeRequest = {
+      trip_region: current.trip_region,
+      trip_length_unit: current.trip_length.unit,
+      interpreted_brief: current.interpreted_brief,
+      narrative: current.narrative,
+      stops,
+    };
+
+    try {
+      const updated = await recomputeItinerary(request, controller.signal);
+      if (controller.signal.aborted) return;
+      setView({ kind: "itinerary", data: updated });
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      // The itinerary on screen is left alone; only the message is new.
+      setEditError(
+        error instanceof ApiError
+          ? error.message
+          : "That change could not be applied.",
+      );
+    } finally {
+      if (inFlight.current === controller) inFlight.current = null;
+      setBusy(false);
+    }
+  }
+
+  function changeNights(stopIndex: number, nights: number) {
+    if (view.kind !== "itinerary") return;
+    const stops = toEditableStops(view.data);
+    stops[stopIndex] = { ...stops[stopIndex], nights };
+    void applyEdit(view.data, stops);
+  }
+
+  function replaceHotel(stopIndex: number, hotelId: string) {
+    if (view.kind !== "itinerary") return;
+    const stops = toEditableStops(view.data);
+    // The rationale explains why the model chose the property being replaced.
+    // Carrying it over would attach it to a hotel the model never picked, so
+    // it is cleared rather than presented as current.
+    stops[stopIndex] = { ...stops[stopIndex], hotel_id: hotelId, rationale: "" };
+    void applyEdit(view.data, stops);
+  }
+
   return (
     <div className="page">
       <header className="masthead">
@@ -69,7 +141,7 @@ export default function App() {
         value={brief}
         onChange={setBrief}
         onSubmit={build}
-        disabled={view.kind === "loading"}
+        disabled={view.kind === "loading" || busy}
       />
 
       <div aria-live="polite">
@@ -106,7 +178,15 @@ export default function App() {
         )}
       </div>
 
-      {view.kind === "itinerary" && <ItineraryView itinerary={view.data} />}
+      {view.kind === "itinerary" && (
+        <ItineraryView
+          itinerary={view.data}
+          busy={busy}
+          editError={editError}
+          onNightsChange={changeNights}
+          onReplace={replaceHotel}
+        />
+      )}
     </div>
   );
 }

@@ -8,9 +8,9 @@ reasoning — what was considered, what was chosen, and why — is in
 [`docs/APPROACH.md`](docs/APPROACH.md). A running build journal is in
 [`BUILD_LOG.md`](BUILD_LOG.md).
 
-> **Status: generation works end to end.** A designer can paste a brief and
-> get back a priced, image-led itinerary in the browser. Editing and the
-> client preview are not built yet.
+> **Status: generation and editing work end to end.** A designer can paste a
+> brief, get back a priced, image-led itinerary in the browser, then change
+> nights and swap properties. The client preview is not built yet.
 
 ## What it does
 
@@ -19,8 +19,9 @@ our anniversary, a few days in Cape Town, some time in the winelands, then
 safari to finish"* — and gets back a day-by-day itinerary they can adjust
 and then present to the client.
 
-Generation works today in the browser. Editing and the client preview are
-not built yet.
+Generation and editing work today in the browser. Edits are recomputed
+deterministically — no second model call — so day ranges, subtotals and the
+total update immediately. The client preview is not built yet.
 
 The journey:
 

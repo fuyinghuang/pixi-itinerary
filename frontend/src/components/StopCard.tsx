@@ -13,14 +13,24 @@ const dayRange = (from: number, to: number) =>
 const nightCount = (nights: number) =>
   `${nights} ${nights === 1 ? "night" : "nights"}`;
 
+interface Props {
+  stop: ItineraryStop;
+  currency: string;
+  /** Edits are disabled while a recompute is in flight. */
+  busy: boolean;
+  onNightsChange: (nights: number) => void;
+  onReplace: (hotelId: string) => void;
+}
+
 export default function StopCard({
   stop,
   currency,
-}: {
-  stop: ItineraryStop;
-  currency: string;
-}) {
+  busy,
+  onNightsChange,
+  onReplace,
+}: Props) {
   const { hotel } = stop;
+  const alternatives = stop.replacement_options;
 
   return (
     <li className="stop">
@@ -52,7 +62,60 @@ export default function StopCard({
           {hotel.brand ? ` · ${hotel.brand}` : ""}
         </p>
 
-        <p className="rationale">{stop.rationale}</p>
+        <div className="edits">
+          <div className="edit">
+            <span className="edit-label">Nights</span>
+            <div className="stepper">
+              <button
+                type="button"
+                onClick={() => onNightsChange(stop.nights - 1)}
+                disabled={busy || stop.nights <= 1}
+                aria-label={`One fewer night at ${hotel.name}`}
+              >
+                −
+              </button>
+              <output>{stop.nights}</output>
+              <button
+                type="button"
+                onClick={() => onNightsChange(stop.nights + 1)}
+                disabled={busy}
+                aria-label={`One more night at ${hotel.name}`}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="edit">
+            <span className="edit-label">Replace</span>
+            {alternatives.length > 0 ? (
+              <select
+                value=""
+                disabled={busy}
+                aria-label={`Replace ${hotel.name}`}
+                onChange={(event) => {
+                  if (event.target.value) onReplace(event.target.value);
+                }}
+              >
+                <option value="">Choose a property…</option>
+                {alternatives.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name} — {option.city}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="no-alternatives">
+                You're already using all available PIXI properties in this
+                region.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Empty after a designer swap: the model never chose this property,
+            so there is no rationale to show. */}
+        {stop.rationale && <p className="rationale">{stop.rationale}</p>}
 
         {hotel.tags.length > 0 && (
           <ul className="tags">

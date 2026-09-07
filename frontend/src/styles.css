@@ -179,27 +179,43 @@ button.link {
   padding-top: calc(var(--space) * 1.5);
 }
 
-.interpreted {
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin: 0 0 0.5rem;
-}
-
 .itinerary-header h2 {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 1.75rem;
   line-height: 1.25;
-  margin: 0 0 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+/* The model's own copy describes the proposal it made, not the itinerary
+   after a designer edits it. Kept for traceability, presented as history. */
+.proposal {
+  max-width: var(--measure);
+  border-left: 2px solid var(--rule);
+  padding-left: var(--space);
+}
+
+.proposal h3 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.35rem;
+}
+
+.proposal h3 + p {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.proposal p:last-child {
+  margin-bottom: 0;
 }
 
 .narrative {
-  max-width: var(--measure);
-  color: var(--ink-soft);
   white-space: pre-wrap;
-  margin: 0;
 }
 
 .stops {
@@ -264,6 +280,100 @@ button.link {
   color: var(--ink-faint);
   font-size: 0.9rem;
   margin: 0.15rem 0 0.85rem;
+}
+
+/* --- designer edit controls --------------------------------------------- */
+
+.edits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) * 1.5);
+  align-items: flex-start;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.85rem 0;
+  margin: 0 0 1rem;
+}
+
+.edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.edit-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepper button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+}
+
+.stepper button:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.stepper output {
+  min-width: 1.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.edit select {
+  font: inherit;
+  color: inherit;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.5rem;
+  max-width: 18rem;
+}
+
+.edit select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.no-alternatives {
+  margin: 0;
+  max-width: 22rem;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.edit-status {
+  margin: var(--space) 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.edit-status.error {
+  color: #a4483c;
+}
+
+/* Recompute is a local round trip, but the itinerary should not look
+   interactive while it is in flight. */
+.itinerary.busy .stops,
+.itinerary.busy .summary {
+  opacity: 0.55;
+  transition: opacity 120ms ease;
 }
 
 .rationale {

@@ -1,11 +1,11 @@
-/**
- * The backend client.
- *
- * Only the generation path exists in this slice. Recompute arrives with the
- * edit controls that need it.
- */
+/** The backend client. */
 
-import type { ErrorResponse, GenerateResult } from "./types";
+import type {
+  ErrorResponse,
+  GenerateResult,
+  Itinerary,
+  RecomputeRequest,
+} from "./types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -69,4 +69,32 @@ export async function generateItinerary(
 
   if (!response.ok) throw await toApiError(response);
   return (await response.json()) as GenerateResult;
+}
+
+/**
+ * Rebuild an itinerary after a designer edit.
+ *
+ * Deterministic — no model call. Every price, day range and total in the
+ * response is recomputed from the supplied catalogue.
+ */
+export async function recomputeItinerary(
+  request: RecomputeRequest,
+  signal?: AbortSignal,
+): Promise<Itinerary> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${BASE_URL}/api/itineraries/recompute`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      signal,
+    });
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === "AbortError") throw cause;
+    throw new ApiError(UNREACHABLE, "network", true);
+  }
+
+  if (!response.ok) throw await toApiError(response);
+  return (await response.json()) as Itinerary;
 }

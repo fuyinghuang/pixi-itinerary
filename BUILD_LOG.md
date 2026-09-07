@@ -11,7 +11,7 @@ Time entries are marked _pending_ where elapsed time was not recorded.
 ## Session 1 — Problem exploration and planning
 
 **Date:** 2026-09-06
-**Time:** _pending_
+**Time:** ~2h
 
 ### Inspected the supplied materials
 
@@ -169,7 +169,7 @@ Three of the review's own recommendations were rejected:
 ## Session 2 — First commit and the contract review
 
 **Date:** 2026-09-06
-**Time:** _pending_
+**Time:** ~1.25h
 
 ### A verification pass before committing
 
@@ -223,7 +223,7 @@ briefs defined as HTTP 200 outcomes. `python3 data/validate.py` passes.
 ## Session 3 — Backend domain layer
 
 **Date:** 2026-09-07
-**Time:** _pending_
+**Time:** ~6h
 
 ### Slice: catalogue, contract, itinerary logic
 
@@ -381,11 +381,58 @@ file. Renamed to `south-africa`.
 
 ---
 
+## Session 4 — Frontend
+
+**Date:** 2026-09-07
+**Time:** _pending_
+
+### Slice: itinerary generation read view
+
+**Time:** ~1.25h
+
+Built
+
+- Vite + React + TypeScript app: brief textarea, live `POST /api/itineraries`,
+  loading state, and an image-led day-by-day itinerary with per-stop subtotals
+  and the accommodation total.
+- `types.ts` mirrors the contract by hand. `api.ts` carries only the
+  generation path — recompute arrives with the edit controls that need it.
+
+Decision
+
+- Generation and unsupported briefs both return HTTP 200 with no
+  discriminator field, so the client narrows structurally on `"stops" in
+  result`. One type guard, one place. An explicit discriminator would be the
+  better long-lived contract; noted for productionisation rather than
+  reopening the backend.
+
+Verification
+
+- Two live generations in a browser against the running backend: South Africa
+  (9 nights from a 10-day brief, $10,850) and Japan. Loading, success and the
+  supplied `access_notes` all render; no console errors.
+- `npm run build` and `oxlint` clean; backend suite still 88 passing.
+
+Correction
+
+- The gallery CSS assumed five images. Hotels carry three to five, so a
+  four-image property left one empty cell and a three-image property left
+  two — the fixed-count assumption invariant §10 exists to prevent, asserted
+  in a type comment and then broken in the stylesheet. Replaced the grid with
+  a flex layout: hero at full width, the rest sharing one row evenly whatever
+  their number. Verified at all three counts rather than reasoned about.
+
+---
+
 ## Time summary
 
-_Pending._ Totals are compiled here and mirrored into
+Totals are compiled here and mirrored into
 [`docs/APPROACH.md`](docs/APPROACH.md) §14.
 
 | Session | Focus | Time |
 |---|---|---|
-| 1 | Problem exploration, planning, working agreement, documentation | pending |
+| 1 | Problem exploration, planning, working agreement, documentation | ~2h |
+| 2 | Verification pass, first commit, contract review | ~1.25h |
+| 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
+| 4 | Frontend — itinerary generation read view | _pending_ |
+| | **Total so far** | **~9.25h** |

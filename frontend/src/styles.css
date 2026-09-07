@@ -1,0 +1,367 @@
+:root {
+  --ink: #1a1a18;
+  --ink-soft: #5c5a54;
+  --ink-faint: #8b877d;
+  --paper: #faf8f5;
+  --card: #ffffff;
+  --rule: #e4dfd6;
+  --accent: #7a6a52;
+
+  --space: 1rem;
+  --measure: 62ch;
+  --radius: 2px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: calc(var(--space) * 2.5) var(--space) calc(var(--space) * 4);
+}
+
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--space);
+  margin-bottom: calc(var(--space) * 2);
+}
+
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.masthead p {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+}
+
+/* --- brief form --------------------------------------------------------- */
+
+.brief label {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.5rem;
+}
+
+.brief textarea {
+  width: 100%;
+  min-height: 6.5rem;
+  padding: 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.brief textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.brief-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: var(--radius);
+  padding: 0.55rem 1.4rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button.link {
+  border: none;
+  background: none;
+  color: var(--accent);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- status states ------------------------------------------------------ */
+
+.status {
+  margin-top: calc(var(--space) * 2);
+  padding: calc(var(--space) * 1.5);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+  max-width: var(--measure);
+}
+
+.status h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.status p {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+
+.status p:last-child {
+  margin-bottom: 0;
+}
+
+.status.error {
+  border-left: 3px solid #a4483c;
+}
+
+.region-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+
+.region-list li {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* --- itinerary ---------------------------------------------------------- */
+
+.itinerary {
+  margin-top: calc(var(--space) * 2.5);
+}
+
+.itinerary-header {
+  border-top: 1px solid var(--rule);
+  padding-top: calc(var(--space) * 1.5);
+}
+
+.interpreted {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.5rem;
+}
+
+.itinerary-header h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  margin: 0 0 0.75rem;
+}
+
+.narrative {
+  max-width: var(--measure);
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.stops {
+  list-style: none;
+  padding: 0;
+  margin: calc(var(--space) * 2) 0 0;
+  display: grid;
+  gap: calc(var(--space) * 2);
+}
+
+.stop {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Counts vary between three and five, so the layout must not depend on a
+   number. The first image leads at full width; the rest share one row and
+   divide it evenly however many there are. */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  background: var(--rule);
+}
+
+.gallery img {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 9rem;
+  object-fit: cover;
+  background: var(--rule);
+}
+
+.gallery img:first-child {
+  flex-basis: 100%;
+  height: 17rem;
+}
+
+.stop-body {
+  padding: calc(var(--space) * 1.25);
+}
+
+.stop-days {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+.stop-body h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.stop-place {
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+  margin: 0.15rem 0 0.85rem;
+}
+
+.rationale {
+  max-width: var(--measure);
+  margin: 0 0 1rem;
+}
+
+.tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.tags li {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.1rem 0.5rem;
+}
+
+.access {
+  max-width: var(--measure);
+  border-left: 2px solid var(--rule);
+  padding-left: 0.85rem;
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.access span {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.2rem;
+}
+
+.stop-cost {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.stop-cost strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* --- price summary ------------------------------------------------------ */
+
+.summary {
+  margin-top: calc(var(--space) * 2);
+  border-top: 1px solid var(--rule);
+  padding-top: calc(var(--space) * 1.25);
+  max-width: var(--measure);
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space);
+}
+
+.summary-total dt {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+
+.summary-total dd {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.price-note {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0;
+}
+
+@media (max-width: 40rem) {
+  .gallery img {
+    height: 7rem;
+  }
+
+  .gallery img:first-child {
+    height: 12rem;
+  }
+}

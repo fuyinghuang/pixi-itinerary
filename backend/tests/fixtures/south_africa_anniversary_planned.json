@@ -1,0 +1,27 @@
+{
+  "status": "planned",
+  "interpreted_brief": "Anniversary trip, 10 days in South Africa: a few days in Cape Town, then the Winelands, finishing on safari.",
+  "trip_region": "south-africa",
+  "trip_length": {
+    "value": 10,
+    "unit": "days"
+  },
+  "narrative": "The classic Cape-to-bush progression, paced so that each chapter has room to breathe. You begin in Cape Town at Ellerman House, a twelve-room villa above Bantry Bay with uninterrupted Atlantic views and no signage from the street — closer to a private residence than a hotel, and an easy landing after a long flight. Three nights allow for Table Mountain, the peninsula and the city's restaurants without rushing.\n\nFrom there you move inland to Delaire Graff Estate on the Helshoogte Pass, a working winery with views across the valley to the Simonsberg. Two nights is the natural Winelands stay: one for the estate's own cellar and spa, one for Franschhoek and Stellenbosch.\n\nThe finale is Londolozi in the Sabi Sand, a family-run reserve bordering Kruger known for its resident leopards and its multi-generational guiding. Four nights is what makes a safari feel like more than a highlight reel — enough drives for the reserve to reveal itself, and enough slow afternoons for an anniversary.",
+  "stops": [
+    {
+      "hotel_id": "ellerman-house-cape-town",
+      "nights": 3,
+      "rationale": "An intimate, discreet city anchor for the first chapter — twelve rooms, cliffside Atlantic views and a notable contemporary art collection. A 25-minute drive from Cape Town International makes it a gentle arrival point, and three nights covers the city and peninsula comfortably."
+    },
+    {
+      "hotel_id": "delaire-graff-stellenbosch",
+      "nights": 2,
+      "rationale": "The Winelands leg the brief asks for: a wine estate on the Helshoogte Pass with panoramic valley views, reached by road from Cape Town. Two nights is the property's natural rhythm — one for the estate itself, one for exploring Stellenbosch and Franschhoek."
+    },
+    {
+      "hotel_id": "londolozi-sabi-sand",
+      "nights": 4,
+      "rationale": "The safari finish. Reached by charter flight from OR Tambo to the lodge's private airstrip, or via Skukuza with a short drive, so it earns a longer stay. Four all-inclusive nights of twice-daily drives in leopard country close the trip on its highest note."
+    }
+  ]
+}

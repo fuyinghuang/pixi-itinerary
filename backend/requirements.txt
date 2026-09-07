@@ -1,7 +1,12 @@
 # Pinned. Dependencies are added by the slice that needs them, so this file
 # never claims something the code does not use.
 
+fastapi==0.115.6
+uvicorn==0.34.0
+python-dotenv==1.0.1
+anthropic==0.125.0
 pydantic==2.10.4
 
 # test only
 pytest==8.3.4
+httpx==0.28.1     # tests construct anthropic errors from httpx objects

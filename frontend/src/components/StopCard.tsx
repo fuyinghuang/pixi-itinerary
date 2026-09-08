@@ -18,6 +18,8 @@ interface Props {
   currency: string;
   /** Edits are disabled while a recompute is in flight. */
   busy: boolean;
+  /** The client sees the itinerary, not the tools used to build it. */
+  preview: boolean;
   onNightsChange: (nights: number) => void;
   onReplace: (hotelId: string) => void;
 }
@@ -26,6 +28,7 @@ export default function StopCard({
   stop,
   currency,
   busy,
+  preview,
   onNightsChange,
   onReplace,
 }: Props) {
@@ -62,6 +65,7 @@ export default function StopCard({
           {hotel.brand ? ` · ${hotel.brand}` : ""}
         </p>
 
+        {!preview && (
         <div className="edits">
           <div className="edit">
             <span className="edit-label">Nights</span>
@@ -112,6 +116,7 @@ export default function StopCard({
             )}
           </div>
         </div>
+        )}
 
         {/* Empty after a designer swap: the model never chose this property,
             so there is no rationale to show. */}

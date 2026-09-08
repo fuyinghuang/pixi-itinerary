@@ -36,6 +36,8 @@ export default function App() {
   const [view, setView] = useState<View>({ kind: "idle" });
   const [busy, setBusy] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  /** The same itinerary, shown as the client would receive it. */
+  const [preview, setPreview] = useState(false);
   const inFlight = useRef<AbortController | null>(null);
 
   async function build() {
@@ -48,6 +50,7 @@ export default function App() {
     inFlight.current = controller;
 
     setEditError(null);
+    setPreview(false);
     setView({ kind: "loading" });
 
     try {
@@ -130,19 +133,37 @@ export default function App() {
     void applyEdit(view.data, stops);
   }
 
-  return (
-    <div className="page">
-      <header className="masthead">
-        <h1>PIXI Itinerary Builder</h1>
-        <p>From a client's own words to a sequenced, image-led proposal.</p>
-      </header>
+  const hasItinerary = view.kind === "itinerary";
 
-      <BriefForm
-        value={brief}
-        onChange={setBrief}
-        onSubmit={build}
-        disabled={view.kind === "loading" || busy}
-      />
+  return (
+    <div className={preview ? "page preview" : "page"}>
+      {!preview && (
+        <header className="masthead">
+          <h1>PIXI Itinerary Builder</h1>
+          <p>From a client's own words to a sequenced, image-led proposal.</p>
+        </header>
+      )}
+
+      {!preview && (
+        <BriefForm
+          value={brief}
+          onChange={setBrief}
+          onSubmit={build}
+          disabled={view.kind === "loading" || busy}
+        />
+      )}
+
+      {hasItinerary && (
+        <div className="view-switch">
+          <button
+            type="button"
+            className="link"
+            onClick={() => setPreview((on) => !on)}
+          >
+            {preview ? "Back to editing" : "Preview as client"}
+          </button>
+        </div>
+      )}
 
       <div aria-live="polite">
         {view.kind === "loading" && (
@@ -183,6 +204,7 @@ export default function App() {
           itinerary={view.data}
           busy={busy}
           editError={editError}
+          preview={preview}
           onNightsChange={changeNights}
           onReplace={replaceHotel}
         />

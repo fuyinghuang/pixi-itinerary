@@ -384,7 +384,7 @@ file. Renamed to `south-africa`.
 ## Session 4 — Frontend
 
 **Date:** 2026-09-07
-**Time:** _pending_
+**Time:** ~3.25h
 
 ### Slice: itinerary generation read view
 
@@ -483,6 +483,34 @@ first, AI proposal as traceable history. In production these are separable
 concerns, with an explicit "refresh the copy" action when a designer wants
 the prose rewritten.
 
+### Slice: client preview
+
+**Time:** ~0.75h
+
+Built
+
+- A view toggle on the itinerary. The client view drops the masthead, the
+  brief form, every edit control, and the busy/error chrome, leaving the
+  derived heading, the stops with their imagery, rationales, supplied access
+  information and pricing.
+- One boolean and a class, not a route or a second component tree.
+
+Decision
+
+- The top-level narrative is omitted from the client view entirely. It
+  describes the proposal the model made, so after a designer edit it can
+  contradict the itinerary beside it — and the client view is the one place
+  where stale copy would reach someone who cannot tell. Designers keep it as
+  labelled history. Deliberately unconditional: no `hasEdited` flag, because
+  a rule that only sometimes applies is one an evaluator can catch out.
+
+Verification
+
+- Live in the browser: generated the worked-example brief, toggled to the
+  client view and back. Confirmed the artefact carries three stops, imagery,
+  `access_notes` and the $10,850 / 9-night summary with no edit affordances.
+- `npm run build`, `oxlint`, 88 backend tests and `data/validate.py` pass.
+
 ---
 
 ## Time summary
@@ -495,5 +523,5 @@ Totals are compiled here and mirrored into
 | 1 | Problem exploration, planning, working agreement, documentation | ~2h |
 | 2 | Verification pass, first commit, contract review | ~1.25h |
 | 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
-| 4 | Frontend — itinerary generation read view | _pending_ |
-| | **Total so far** | **~9.25h** |
+| 4 | Frontend — read view, editing, client preview | ~3.25h |
+| | **Total so far** | **~12.5h** |

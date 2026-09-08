@@ -170,8 +170,32 @@ button.link {
 
 /* --- itinerary ---------------------------------------------------------- */
 
+/* --- view switch -------------------------------------------------------- */
+
+.view-switch {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: calc(var(--space) * 2);
+}
+
+.page.preview .view-switch {
+  margin-top: 0;
+  padding-bottom: var(--space);
+  border-bottom: 1px solid var(--rule);
+}
+
 .itinerary {
   margin-top: calc(var(--space) * 2.5);
+}
+
+/* Nothing above the itinerary in the client's view, so it leads the page. */
+.page.preview .itinerary {
+  margin-top: calc(var(--space) * 1.5);
+}
+
+.page.preview .itinerary-header {
+  border-top: none;
+  padding-top: 0;
 }
 
 .itinerary-header {

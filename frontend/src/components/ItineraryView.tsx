@@ -7,6 +7,8 @@ interface Props {
   itinerary: Itinerary;
   busy: boolean;
   editError: string | null;
+  /** The client-facing view: current state only, no tools, no history. */
+  preview: boolean;
   onNightsChange: (stopIndex: number, nights: number) => void;
   onReplace: (stopIndex: number, hotelId: string) => void;
 }
@@ -18,6 +20,7 @@ export default function ItineraryView({
   itinerary,
   busy,
   editError,
+  preview,
   onNightsChange,
   onReplace,
 }: Props) {
@@ -34,19 +37,28 @@ export default function ItineraryView({
           {region} · {duration} · {plural(itinerary.stops.length, "stop")}
         </h2>
 
-        <section className="proposal" aria-label="Original AI proposal">
-          <h3>Original brief interpretation</h3>
-          <p>{itinerary.interpreted_brief}</p>
+        {/* The model's own copy describes the proposal it made, not the
+            itinerary after an edit. It stays available to the designer as
+            history, and is kept out of the client's view entirely. */}
+        {!preview && (
+          <section className="proposal" aria-label="Original AI proposal">
+            <h3>Original brief interpretation</h3>
+            <p>{itinerary.interpreted_brief}</p>
 
-          <h3>Original proposal narrative</h3>
-          <p className="narrative">{itinerary.narrative}</p>
-        </section>
+            <h3>Original proposal narrative</h3>
+            <p className="narrative">{itinerary.narrative}</p>
+          </section>
+        )}
       </header>
 
-      <div aria-live="polite">
-        {busy && <p className="edit-status">Updating the itinerary…</p>}
-        {editError && !busy && <p className="edit-status error">{editError}</p>}
-      </div>
+      {!preview && (
+        <div aria-live="polite">
+          {busy && <p className="edit-status">Updating the itinerary…</p>}
+          {editError && !busy && (
+            <p className="edit-status error">{editError}</p>
+          )}
+        </div>
+      )}
 
       <ol className="stops">
         {itinerary.stops.map((stop, index) => (
@@ -55,6 +67,7 @@ export default function ItineraryView({
             stop={stop}
             currency={itinerary.currency}
             busy={busy}
+            preview={preview}
             onNightsChange={(nights) => onNightsChange(index, nights)}
             onReplace={(hotelId) => onReplace(index, hotelId)}
           />

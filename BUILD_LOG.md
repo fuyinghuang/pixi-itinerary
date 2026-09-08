@@ -105,8 +105,8 @@ exploration while human review changed the engineering outcome.
 **What AI proposed.** The initial architecture included a transfer engine:
 haversine distance between consecutive stops, transport-mode inference
 from distance and airport codes, duration estimates, and a mock transfer
-rate card feeding into the total price. It was plausible, self-consistent,
-and would have taken two to three hours to build.
+rate card feeding into the total price. It was plausible and
+self-consistent, but the data showed the abstraction itself was wrong.
 
 **The challenge.** Does this actually improve the product, or is it
 engineering for its own sake? The brief asks for an itinerary product, not
@@ -120,10 +120,18 @@ the supplied information on real legs in this catalogue:
 - *Giraffe Manor → Angama Mara.* Both list `NBO` as nearest airport. A
   "same airport means road transfer" rule is flatly wrong; the supplied
   notes describe a scheduled light aircraft from Nairobi Wilson.
-- *andBeyond Ngorongoro → Singita Grumeti.* Both list `JRO`, roughly
-  110 km apart in a straight line. A distance threshold generous enough to
-  fix the Nairobi case classifies this as a drive. The supplied notes say
-  *"Bush flight… Not road-accessible for guests."*
+- *andBeyond Ngorongoro → Singita Grumeti.* Both list `JRO`, 168 km apart
+  in a straight line, connected by a bush flight the notes call *"Not
+  road-accessible for guests."* Yet Ngorongoro itself is reached from
+  Kilimanjaro by a four-to-five hour road transfer. Similar distances,
+  opposite modes — distance does not determine the answer.
+
+  *(Corrected: this entry originally said 110 km, a figure never computed.
+  The great-circle distance is 168 km, and Giraffe Manor → Angama Mara is
+  199 km. The original claim that any sane threshold would call the second
+  leg a drive was wrong as well as unmeasured — a low threshold would in
+  fact classify both correctly. The real reason inference fails is the road
+  transfer above.)*
 
 Patching these would mean encoding enough exceptions that the computation
 is decoration over a lookup table — while producing numbers less accurate
@@ -140,8 +148,8 @@ generated prose.
 than simulating a logistics engine; in production this is a routing or
 travel-logistics integration"* is a stronger position than defending
 invented precision — particularly to an audience who knows this domain far
-better than we do. It also freed roughly two to three hours for hardening
-and visual quality, which is where a DAM company will actually look.
+better than we do. It also kept the remaining timebox on hardening and
+visual quality, which is where a DAM company will actually look.
 
 ### `AGENTS.md` review
 
@@ -343,9 +351,9 @@ pacing: a property reached by light aircraft should not be a one-night
 stop. Withholding it trades product quality for a guarantee we may not
 need.
 
-**Evidence.** Measurement, not argument. The prose costs ~500 tokens on a
-~1,700-token payload, so cost was never the reason. The claim that
-`description` already carries the signal is false: `andbeyond-ngorongoro`
+**Evidence.** Measurement, not argument. The additional prompt cost was
+small relative to the planning signal, and the claim that `description`
+already carries the signal is false: `andbeyond-ngorongoro`
 and `singita-grumeti` are both fly-in with no access hint in their
 descriptions, while `belmond-caruso-ravello` mentions a boat but is a road
 transfer. The middle option — a hand-authored `access_character` label —
@@ -478,9 +486,10 @@ and an absent rationale is truthful where a stale one is not — the model did
 not choose this property. Labelling the model's prose was not enough on its
 own: it was rendered as the headline, so a nine-day itinerary was titled "an
 anniversary trip of 10 days" directly beneath a line reading 9 days. The
-fix is not to hide the stale text but to reorder authority — current state
-first, AI proposal as traceable history. In production these are separable
-concerns, with an explicit "refresh the copy" action when a designer wants
+fix is not to discard all model-authored copy, but to reorder authority —
+current state first, AI proposal as traceable history. In production these
+are separable concerns, with an explicit "refresh the copy" action when a
+designer wants
 the prose rewritten.
 
 ### Slice: client preview

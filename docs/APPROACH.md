@@ -117,7 +117,34 @@ removed. Transfer information stays grounded in `nearest_airport`,
 In production this is a routing or travel-logistics integration, not
 something to simulate.
 
-## 8. Assignment requirements vs our decisions
+## 8. Frontend and UI design approach
+
+The frontend was designed around two modes with different jobs: a working
+view for the travel designer, and a presentation view for the client.
+
+In the designer view, the priority is control and legibility. The brief
+remains visible, itinerary stops are structured into clear cards, pricing is
+explicit, and editing is deliberately limited to nights and hotel
+replacement so the interface stays focused.
+
+In the client preview, editing controls and the top-level
+`interpreted_brief` / `narrative` context are removed, while client-relevant
+model-authored copy such as per-stop rationale remains. Imagery becomes the
+dominant visual element, followed by destination, nights, rationale, access
+information and indicative pricing. The goal is to make the same structured
+itinerary feel closer to a sendable luxury-travel proposal than to an
+internal admin tool.
+
+I deliberately avoided adding maps, complex timelines, a design system or
+highly decorative UI within the timebox. The supplied hotel photography and
+content were treated as the visual centre of the experience, with the
+interface acting as a frame around them.
+
+The implementation itself acted as the prototype: layout, hierarchy and the
+distinction between designer and client modes were refined in the browser as
+the end-to-end journey was built.
+
+## 9. Assignment requirements vs our decisions
 
 Keeping these separate matters — we should be able to say which is which.
 
@@ -148,7 +175,7 @@ Keeping these separate matters — we should be able to say which is which.
 - `data/` treated as read-only, though the dataset README permits
   extension
 
-## 9. Assumptions
+## 10. Assumptions
 
 - Trip length arrives as a duration ("10 days"), not as calendar dates. It
   is stated in days or nights and normalised deterministically: N days →
@@ -167,7 +194,7 @@ Keeping these separate matters — we should be able to say which is which.
 - Party size shapes narrative and property fit, not price.
 - Placeholder imagery stands in for PIXI DAM assets.
 
-## 10. Risks
+## 11. Risks
 
 - **Unscripted input.** Evaluators will type their own briefs, including
   destinations the catalogue cannot serve. An honest unsupported-state
@@ -185,7 +212,7 @@ Keeping these separate matters — we should be able to say which is which.
 - **Output that impresses engineers but not designers.** The test is
   whether it looks sendable to a client.
 
-## 11. Testing and verification
+## 12. Testing and verification
 
 Testing effort goes where incorrect behaviour would quietly weaken the
 product or the architecture story, rather than spread evenly.
@@ -216,7 +243,7 @@ not sum — plus observability on latency, repair rate, and unsupported-brief
 frequency. Those signals, not unit tests, are what would tell PIXI whether
 the feature is working for designers.
 
-## 12. Productionisation and next steps
+## 13. Productionisation and next steps
 
 Two things would break first, and both are about knowing whether the
 feature is working rather than whether it runs.
@@ -267,7 +294,7 @@ model pass that rewrites the narrative on request after edits; and richer
 editing — reordering stops, room categories, adding a property the model did
 not pick.
 
-## 13. AI-enabled development process
+## 14. AI-enabled development process
 
 **Tools, and what each was for.** Claude Code was used throughout: to
 interrogate the brief and the dataset before any code, to argue through
@@ -351,7 +378,7 @@ days/nights bug were all caught the same way — by opening `hotels.json` and
 counting, rather than by reading the proposal again. Plausibility is not
 evidence; for this MVP, the supplied dataset is the source of truth.
 
-## 14. Time spent
+## 15. Time spent
 
 Recorded at the close of each session rather than reconstructed afterwards.
 
@@ -370,7 +397,7 @@ the two corrections to how trip length is represented. The frontend was
 comparatively quick because the deterministic layer meant it had no arithmetic
 of its own to get wrong.
 
-## 15. What I learned
+## 16. What I learned
 
 **A tight constraint improved the product.** Twelve hotels across four regions
 makes retrieval trivial, which initially looked like a limitation. It forced

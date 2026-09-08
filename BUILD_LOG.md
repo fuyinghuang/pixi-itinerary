@@ -577,7 +577,7 @@ generation succeeded end to end.
 ## Time summary
 
 Totals are compiled here and mirrored into
-[`docs/APPROACH.md`](docs/APPROACH.md) §14.
+[`docs/APPROACH.md`](docs/APPROACH.md) §15.
 
 | Session | Focus | Time |
 |---|---|---|

@@ -522,6 +522,58 @@ Verification
 
 ---
 
+## Session 5 — Submission hardening and verification
+
+**Date:** 2026-09-08
+**Time:** ~1h
+
+### Final browser verification
+
+Two paths had been written and unit-tested but never seen on screen — the
+two an unscripted evaluator is most likely to reach first. Both were
+exercised against a running build. **No defects found; no code changed.**
+
+| Scenario | Expected | Observed |
+|---|---|---|
+| Supported brief | Grounded itinerary from PIXI data | South Africa, 9 nights over 3 stops, supplied imagery and access notes, $10,850 |
+| Unsupported destination | Honest refusal, no substitution | HTTP 200 in 5s, named the four regions covered, offered alternatives without pretending Paris was served |
+| Service unavailable | Recoverable error | Plain message and a Try again action; brief preserved |
+| Retry | Recovery after restart | Returned to a valid itinerary |
+
+Supported happy path, as the client sees it:
+
+![Supported client preview](docs/screenshots/supported-client-preview.jpg)
+
+Unsupported destination:
+
+![Unsupported destination](docs/screenshots/unsupported-destination.jpg)
+
+Service unavailable:
+
+![Backend error state](docs/screenshots/backend-error.jpg)
+
+Retry recovery:
+
+![Retry recovered](docs/screenshots/retry-recovered.jpg)
+
+### Clean-clone verification
+
+Cloned the repository to a fresh directory and followed only `README.md`,
+using nothing from the development environment to fill gaps.
+
+Every documented step worked first time: `.env.example` was sufficient,
+`pip install -r requirements.txt` resolved all seven pins on an empty venv,
+`pytest` gave 88 passing, `uvicorn app.main:app --reload` started clean, and
+`/api/health` returned the documented response — including
+`planner_configured: true`, which confirms `.env` resolves from the
+repository root rather than from a path that happened to exist locally.
+`npm install` and `npm run dev` served on the documented port, and one live
+generation succeeded end to end.
+
+**No gaps found in the README.**
+
+---
+
 ## Time summary
 
 Totals are compiled here and mirrored into
@@ -533,4 +585,5 @@ Totals are compiled here and mirrored into
 | 2 | Verification pass, first commit, contract review | ~1.25h |
 | 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
 | 4 | Frontend — read view, editing, client preview | ~3.25h |
-| | **Total so far** | **~12.5h** |
+| 5 | Submission hardening, clean-clone verification, final documentation | ~1h |
+| | **Total** | **~13.5h** |

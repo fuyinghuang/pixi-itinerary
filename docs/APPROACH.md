@@ -3,8 +3,6 @@
 Product narrative for the PIXI AI Product Engineer take-home exercise.
 
 > Written as the build progressed rather than reconstructed afterwards.
-> Time figures are provisional until final hardening and documentation are
-> complete.
 
 ## 1. Interpretation of the problem
 
@@ -200,8 +198,10 @@ product or the architecture story, rather than spread evenly.
   to end and the error codes. Ten in total, none needing a key or a network.
 - **Manual end-to-end verification** of the complete journey — brief,
   generated itinerary, validation and pricing, designer edits, client
-  preview. Recorded in
-  [`BUILD_LOG.md`](../BUILD_LOG.md) rather than asserted here.
+  preview — and of the two paths an unscripted evaluator is most likely to
+  reach first: a destination the catalogue cannot serve, and the service
+  being unavailable. Recorded in [`BUILD_LOG.md`](../BUILD_LOG.md) rather
+  than asserted here.
 - **Frontend automated tests** were not written. The journey was verified
   in a browser against the live backend instead, which is what caught the
   defects that mattered.
@@ -354,7 +354,6 @@ evidence; for this MVP, the supplied dataset is the source of truth.
 ## 14. Time spent
 
 Recorded at the close of each session rather than reconstructed afterwards.
-Provisional — final hardening and documentation time is not yet included.
 
 | Session | Focus | Time |
 |---|---|---|
@@ -362,7 +361,8 @@ Provisional — final hardening and documentation time is not yet included.
 | 2 | Verification pass, first commit, contract review | ~1.25h |
 | 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
 | 4 | Frontend — read view, editing, client preview | ~3.25h |
-| | **Total so far** | **~12.5h** |
+| 5 | Submission hardening, clean-clone verification, final documentation | ~1h |
+| | **Total** | **~13.5h** |
 
 The backend took roughly half the budget, and most of that went to contract
 correctness rather than feature volume: the schemas, the validation rules and

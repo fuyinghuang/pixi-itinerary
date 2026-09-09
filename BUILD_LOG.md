@@ -401,7 +401,7 @@ file. Renamed to `south-africa`.
 Built
 
 - Vite + React + TypeScript app: brief textarea, live `POST /api/itineraries`,
-  loading state, and an image-led day-by-day itinerary with per-stop subtotals
+  loading state, and an image-led sequenced itinerary with per-stop subtotals
   and the accommodation total.
 - `types.ts` mirrors the contract by hand. `api.ts` carries only the
   generation path — recompute arrives with the edit controls that need it.

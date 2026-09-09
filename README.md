@@ -12,12 +12,22 @@ reasoning — what was considered, what was chosen, and why — is in
 > gets back a priced, image-led itinerary, adjusts it, and previews it as
 > the client would see it.
 
+## Demo
+
+From a client brief to a grounded itinerary, one deterministic edit, and the
+client-facing preview.
+
+Changing nights recomputes prices and day ranges immediately without another
+model call.
+
+![Walkthrough: brief to itinerary to client preview](docs/screenshots/pixi-itinerary-demo.gif)
+
 ## What it does
 
 A designer pastes the client's own words — *"10 days in South Africa for
 our anniversary, a few days in Cape Town, some time in the winelands, then
-safari to finish"* — and gets back a day-by-day itinerary they can adjust
-and then present to the client.
+safari to finish"* — and gets back a sequenced, image-led itinerary they
+can adjust and then present to the client.
 
 Edits are recomputed deterministically — no second model call — so day
 ranges, subtotals and the total update immediately. A view toggle shows the
@@ -144,7 +154,7 @@ committed.
 backend/      FastAPI application and deterministic logic
 frontend/     React + TypeScript application
 data/         Supplied PIXI dataset + validate.py           (read-only)
-docs/         APPROACH.md — product narrative
+docs/         Product narrative and demo assets
 AGENTS.md     Working agreement for AI coding agents
 CLAUDE.md     Imports AGENTS.md — Claude Code's entry point
 BUILD_LOG.md  Build journal and time log

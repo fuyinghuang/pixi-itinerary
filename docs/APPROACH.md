@@ -389,7 +389,8 @@ Recorded at the close of each session rather than reconstructed afterwards.
 | 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
 | 4 | Frontend — read view, editing, client preview | ~3.25h |
 | 5 | Submission hardening, clean-clone verification, final documentation | ~1h |
-| | **Total** | **~13.5h** |
+| 6 | Submission polish — demo GIF and reviewer-ready README | ~1h |
+| | **Total** | **~14.5h** |
 
 The backend took roughly half the budget, and most of that went to contract
 correctness rather than feature volume: the schemas, the validation rules and

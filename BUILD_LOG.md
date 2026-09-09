@@ -574,6 +574,21 @@ generation succeeded end to end.
 
 ---
 
+## Session 6 — Submission polish
+
+**Date:** 2026-09-09
+**Time:** ~1h
+
+- Added an end-to-end demo GIF — itinerary generation, deterministic editing,
+  and the client-facing preview — and embedded it in the README.
+- Restructured and clarified the README so a first-time reviewer can follow
+  the setup end to end, including where the backend and frontend environment
+  configuration each live.
+- Final submission review completed; the build journal is closed for
+  submission.
+
+---
+
 ## Time summary
 
 Totals are compiled here and mirrored into
@@ -586,4 +601,5 @@ Totals are compiled here and mirrored into
 | 3 | Backend — catalogue, contract, itinerary logic, planner, API | ~6h |
 | 4 | Frontend — read view, editing, client preview | ~3.25h |
 | 5 | Submission hardening, clean-clone verification, final documentation | ~1h |
-| | **Total** | **~13.5h** |
+| 6 | Submission polish — demo GIF and reviewer-ready README | ~1h |
+| | **Total** | **~14.5h** |

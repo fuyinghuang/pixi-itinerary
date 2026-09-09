@@ -30,8 +30,8 @@ safari to finish"* — and gets back a sequenced, image-led itinerary they
 can adjust and then present to the client.
 
 Edits are recomputed deterministically — no second model call — so day
-ranges, subtotals and the total update immediately. A view toggle shows the
-same itinerary as the client would receive it.
+ranges, subtotals and the total update immediately. A view toggle previews
+the same itinerary in a client-facing presentation.
 
 The journey:
 
@@ -63,7 +63,7 @@ by instruction: the model's response has no field a price could occupy.
   countries, supplied with the exercise and committed unmodified
 
 The brief requires a Python backend and a React + TypeScript frontend.
-FastAPI and Vite are our choices — see
+FastAPI and Vite were chosen for this implementation — see
 [`docs/APPROACH.md`](docs/APPROACH.md).
 
 ## Prerequisites
@@ -87,9 +87,9 @@ cp .env.example .env
 # ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-The key is read by the backend only. `load_dotenv()` finds this root `.env`
-whichever directory the server starts from, so it does not matter that the
-backend runs from `backend/`.
+The key is read by the backend only. It loads `ANTHROPIC_API_KEY` from this
+repository-root `.env` via `load_dotenv()`, including when started from
+`backend/` as shown below. No frontend environment configuration is required.
 
 ### 2. Validate the supplied dataset
 
@@ -110,7 +110,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-pytest                          # optional — 88 tests, no key or network
+pytest                          # optional — 88 tests, no key or network required
 
 uvicorn app.main:app --reload
 ```
@@ -140,10 +140,15 @@ npm run dev
 
 Open the app at **http://localhost:5173**.
 
+No frontend environment configuration is required for local development: the
+app connects to `http://localhost:8000` by default. To point it at a
+different backend, set `VITE_API_BASE_URL` in `frontend/.env` or inline
+(`VITE_API_BASE_URL=… npm run dev`) — Vite reads it from the `frontend/`
+directory, not the repository-root `.env`.
+
 The dev server is pinned to port 5173 because the backend's CORS allowlist
 names it. If the port is taken, Vite fails rather than moving to another one
-where API calls would be silently blocked. `VITE_API_BASE_URL` overrides the
-backend origin; it defaults to `http://localhost:8000`.
+where API calls would be silently blocked.
 
 ## API
 
@@ -163,7 +168,7 @@ committed.
 | Variable | Required | Purpose |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | yes | Interpreting the brief and generating the itinerary |
-| `VITE_API_BASE_URL` | no | Backend origin for the frontend. Defaults to `http://localhost:8000` |
+| `VITE_API_BASE_URL` | no | Backend origin for the frontend. Defaults to `http://localhost:8000`; set in `frontend/.env` to override |
 
 ## Repository layout
 

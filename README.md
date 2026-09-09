@@ -74,59 +74,76 @@ FastAPI and Vite are our choices — see
 
 ## Setup
 
+Four steps, run from the repository root: **1** configure → **2** validate →
+**3** backend → **4** frontend.
+
+### 1. Clone and configure
+
 ```bash
 git clone <repo-url>
 cd pixi-itinerary
 cp .env.example .env
-# open .env and set ANTHROPIC_API_KEY
+# Add your Anthropic API key to .env:
+# ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### Dataset
+The key is read by the backend only. `load_dotenv()` finds this root `.env`
+whichever directory the server starts from, so it does not matter that the
+backend runs from `backend/`.
 
-The hotel data is committed to the repository — there is no download or
-seed step. Verify it loads cleanly:
+### 2. Validate the supplied dataset
+
+The hotel data is committed — there is no download or seed step. Confirm it
+loads cleanly:
 
 ```bash
 python3 data/validate.py
 # expected: OK: 12 hotels across 5 countries — all valid.
 ```
 
-### Backend
+### 3. Start the backend
 
 ```bash
+# Terminal 1 — from the repository root
 cd backend
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-pytest                                    # 88 tests
-uvicorn app.main:app --reload             # http://localhost:8000
+
+pytest                          # optional — 88 tests, no key or network
+
+uvicorn app.main:app --reload
 ```
 
-Check it came up, and that the catalogue loaded:
+`pytest` is optional: it verifies the deterministic core and needs neither a
+key nor a network, so it is the fastest confirmation the logic is sound — but
+the app runs without it. `uvicorn` starts the API on `http://localhost:8000`.
+Confirm it came up and the catalogue loaded:
 
 ```bash
 curl -s localhost:8000/api/health
 # {"status":"ok","hotels":12,"regions":[...],"planner_configured":true}
 ```
 
-`planner_configured` reports whether `ANTHROPIC_API_KEY` was found. The
-tests need neither a key nor a network — only itinerary generation does.
+`planner_configured: true` confirms `ANTHROPIC_API_KEY` was found. If it
+reads `false`, the app still loads but itinerary generation will fail — set
+the key in `.env` and restart.
 
-### Frontend
-
-In a second terminal, with the backend running:
+### 4. Start the frontend
 
 ```bash
+# Terminal 2 — from the repository root, with the backend running
 cd frontend
 npm install
-npm run dev                               # http://localhost:5173
+npm run dev
 ```
+
+Open the app at **http://localhost:5173**.
 
 The dev server is pinned to port 5173 because the backend's CORS allowlist
 names it. If the port is taken, Vite fails rather than moving to another one
-where API calls would be silently blocked.
-
-`VITE_API_BASE_URL` overrides the backend origin; it defaults to
-`http://localhost:8000`.
+where API calls would be silently blocked. `VITE_API_BASE_URL` overrides the
+backend origin; it defaults to `http://localhost:8000`.
 
 ## API
 

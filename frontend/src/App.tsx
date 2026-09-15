@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 
 import { ApiError, generateItinerary, recomputeItinerary } from "./api";
+import type { Baseline } from "./baseline";
+import { captureBaseline, recordDesignerRationale } from "./baseline";
 import BriefForm from "./components/BriefForm";
 import ItineraryView from "./components/ItineraryView";
 import type {
@@ -15,11 +17,16 @@ import { REGION_LABELS, isItinerary } from "./types";
  * Every state the screen can be in. A discriminated union so the compiler
  * insists each one is handled — including the unsupported brief, which is a
  * normal outcome rather than an error.
+ *
+ * `baseline` records what the itinerary was generated with and what each
+ * stop's rationale was written for. It is captured once per generation and
+ * only replaced when an edit succeeds, so the designer can see when edits
+ * have moved the itinerary away from its copy.
  */
 type View =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "itinerary"; data: Itinerary }
+  | { kind: "itinerary"; data: Itinerary; baseline: Baseline }
   | { kind: "unsupported"; data: UnsupportedBriefResponse }
   | { kind: "error"; message: string; retryable: boolean };
 
@@ -58,7 +65,11 @@ export default function App() {
       if (controller.signal.aborted) return;
       setView(
         isItinerary(result)
-          ? { kind: "itinerary", data: result }
+          ? {
+              kind: "itinerary",
+              data: result,
+              baseline: captureBaseline(result),
+            }
           : { kind: "unsupported", data: result },
       );
     } catch (error) {
@@ -81,8 +92,15 @@ export default function App() {
    * Apply an edit by asking the backend to rebuild the itinerary. Nothing is
    * computed here — every price, day range and total comes back from the
    * catalogue, so an optimistic local guess would only be able to be wrong.
+   *
+   * `nextBaseline` is stored only if the edit succeeds. Resolves to whether
+   * it did.
    */
-  async function applyEdit(current: Itinerary, stops: RecomputeStop[]) {
+  async function applyEdit(
+    current: Itinerary,
+    nextBaseline: Baseline,
+    stops: RecomputeStop[],
+  ): Promise<boolean> {
     inFlight.current?.abort();
     const controller = new AbortController();
     inFlight.current = controller;
@@ -100,16 +118,19 @@ export default function App() {
 
     try {
       const updated = await recomputeItinerary(request, controller.signal);
-      if (controller.signal.aborted) return;
-      setView({ kind: "itinerary", data: updated });
+      if (controller.signal.aborted) return false;
+      setView({ kind: "itinerary", data: updated, baseline: nextBaseline });
+      return true;
     } catch (error) {
-      if (controller.signal.aborted) return;
-      // The itinerary on screen is left alone; only the message is new.
+      if (controller.signal.aborted) return false;
+      // The itinerary and baseline on screen are left alone; only the
+      // message is new.
       setEditError(
         error instanceof ApiError
           ? error.message
           : "That change could not be applied.",
       );
+      return false;
     } finally {
       if (inFlight.current === controller) inFlight.current = null;
       setBusy(false);
@@ -120,7 +141,7 @@ export default function App() {
     if (view.kind !== "itinerary") return;
     const stops = toEditableStops(view.data);
     stops[stopIndex] = { ...stops[stopIndex], nights };
-    void applyEdit(view.data, stops);
+    void applyEdit(view.data, view.baseline, stops);
   }
 
   function replaceHotel(stopIndex: number, hotelId: string) {
@@ -130,7 +151,24 @@ export default function App() {
     // Carrying it over would attach it to a hotel the model never picked, so
     // it is cleared rather than presented as current.
     stops[stopIndex] = { ...stops[stopIndex], hotel_id: hotelId, rationale: "" };
-    void applyEdit(view.data, stops);
+    void applyEdit(view.data, view.baseline, stops);
+  }
+
+  /**
+   * The designer rewrote a stop's rationale for its current nights. Saved
+   * through recompute like any other edit, so the backend's length limit
+   * applies, and recorded in the baseline only once the save succeeds.
+   */
+  function saveRationale(stopIndex: number, rationale: string): Promise<boolean> {
+    if (view.kind !== "itinerary") return Promise.resolve(false);
+    const stop = view.data.stops[stopIndex];
+    const stops = toEditableStops(view.data);
+    stops[stopIndex] = { ...stops[stopIndex], rationale };
+    return applyEdit(
+      view.data,
+      recordDesignerRationale(view.baseline, stop.hotel.id, stop.nights),
+      stops,
+    );
   }
 
   const hasItinerary = view.kind === "itinerary";
@@ -202,11 +240,13 @@ export default function App() {
       {view.kind === "itinerary" && (
         <ItineraryView
           itinerary={view.data}
+          baseline={view.baseline}
           busy={busy}
           editError={editError}
           preview={preview}
           onNightsChange={changeNights}
           onReplace={replaceHotel}
+          onRationaleSave={saveRationale}
         />
       )}
     </div>

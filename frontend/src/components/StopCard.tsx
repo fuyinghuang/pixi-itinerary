@@ -1,4 +1,10 @@
+import { useId, useState } from "react";
+
+import type { StopCopy } from "../baseline";
 import type { ItineraryStop } from "../types";
+
+/** Matches `RecomputeStop.rationale` in the backend schema. */
+const RATIONALE_MAX_LENGTH = 600;
 
 const money = (amount: number, currency: string) =>
   new Intl.NumberFormat("en-US", {
@@ -15,6 +21,8 @@ const nightCount = (nights: number) =>
 
 interface Props {
   stop: ItineraryStop;
+  /** What to show beneath the hotel details, already chosen for this view. */
+  copy: StopCopy;
   currency: string;
   /** Edits are disabled while a recompute is in flight. */
   busy: boolean;
@@ -22,18 +30,31 @@ interface Props {
   preview: boolean;
   onNightsChange: (nights: number) => void;
   onReplace: (hotelId: string) => void;
+  /** Resolves to whether the save succeeded. */
+  onRationaleSave: (rationale: string) => Promise<boolean>;
 }
 
 export default function StopCard({
   stop,
+  copy,
   currency,
   busy,
   preview,
   onNightsChange,
   onReplace,
+  onRationaleSave,
 }: Props) {
   const { hotel } = stop;
   const alternatives = stop.replacement_options;
+  /** The designer's unsaved rewrite of the rationale; null when not editing. */
+  const [draft, setDraft] = useState<string | null>(null);
+  const draftId = useId();
+
+  async function saveDraft() {
+    if (draft === null || !draft.trim()) return;
+    // Closed only once the save succeeds, so a failure keeps the text.
+    if (await onRationaleSave(draft.trim())) setDraft(null);
+  }
 
   return (
     <li className="stop">
@@ -118,9 +139,76 @@ export default function StopCard({
         </div>
         )}
 
-        {/* Empty after a designer swap: the model never chose this property,
-            so there is no rationale to show. */}
-        {stop.rationale && <p className="rationale">{stop.rationale}</p>}
+        {/* The rationale, unaltered. When the stay no longer matches what it
+            was written for, the designer sees why it is marked and can review
+            it; the client is shown the hotel's description instead. */}
+        {copy.kind === "rationale" && (preview || draft === null) && (
+          <div className="rationale">
+            {!preview && copy.stale && (
+              <p className="rationale-note">
+                Written for {copy.stale.author === "model" ? "the original " : ""}
+                {nightCount(copy.stale.nights)}.{" "}
+                <button
+                  type="button"
+                  className="link"
+                  onClick={() => setDraft(copy.text)}
+                  disabled={busy}
+                >
+                  Review description
+                </button>
+              </p>
+            )}
+            <p>{copy.text}</p>
+          </div>
+        )}
+
+        {/* Designer only. Nothing reaches the client until the save succeeds. */}
+        {!preview && draft !== null && (
+          <div className="rationale-editor">
+            <label htmlFor={draftId}>
+              Description for {nightCount(stop.nights)}
+            </label>
+            <textarea
+              id={draftId}
+              value={draft}
+              maxLength={RATIONALE_MAX_LENGTH}
+              disabled={busy}
+              onChange={(event) => setDraft(event.target.value)}
+            />
+            {/* Saving records who confirmed the text and for how many nights.
+                It does not read the text, so the hint says so. */}
+            <p className="rationale-editor-hint">
+              Check the text matches {nightCount(stop.nights)} — saving doesn't
+              check the wording. Until you save, the client preview shows the
+              hotel's description.
+            </p>
+            <div className="rationale-editor-actions">
+              <button
+                type="button"
+                onClick={() => void saveDraft()}
+                disabled={busy || !draft.trim()}
+              >
+                Save for {nightCount(stop.nights)}
+              </button>
+              <button
+                type="button"
+                className="link"
+                onClick={() => setDraft(null)}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Supplied verbatim from the dataset — not a recommendation. */}
+        {copy.kind === "about" && (
+          <p className="about-hotel">
+            <span>About the hotel</span>
+            {copy.text}
+          </p>
+        )}
 
         {hotel.tags.length > 0 && (
           <ul className="tags">

@@ -211,6 +211,19 @@ button.link {
   margin: 0 0 1.25rem;
 }
 
+/* Edits may change how long the trip is. Set apart from the history below
+   because it describes the itinerary as it stands now. */
+.length-notice {
+  display: inline-block;
+  margin: 0 0 1.25rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
 /* The model's own copy describes the proposal it made, not the itinerary
    after a designer edits it. Kept for traceability, presented as history. */
 .proposal {
@@ -405,6 +418,64 @@ button.link {
   margin: 0 0 1rem;
 }
 
+.rationale p {
+  margin: 0;
+}
+
+/* Designer view only: the stay changed after this text was written. */
+.rationale-note {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  margin-bottom: 0.25rem;
+}
+
+/* Designer view only: rewriting a stale rationale for the current stay.
+   Follows the brief form's label, field and action styles. */
+.rationale-editor {
+  max-width: var(--measure);
+  margin: 0 0 1rem;
+}
+
+.rationale-editor label {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.rationale-editor textarea {
+  width: 100%;
+  min-height: 7rem;
+  padding: 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.rationale-editor textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rationale-editor-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.rationale-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .tags {
   list-style: none;
   display: flex;
@@ -424,7 +495,9 @@ button.link {
   padding: 0.1rem 0.5rem;
 }
 
-.access {
+/* Dataset copy shown in place of a rationale, labelled like access notes. */
+.access,
+.about-hotel {
   max-width: var(--measure);
   border-left: 2px solid var(--rule);
   padding-left: 0.85rem;
@@ -433,7 +506,8 @@ button.link {
   font-size: 0.9rem;
 }
 
-.access span {
+.access span,
+.about-hotel span {
   display: block;
   font-size: 0.75rem;
   letter-spacing: 0.06em;

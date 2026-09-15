@@ -294,6 +294,25 @@ model pass that rewrites the narrative on request after edits; and richer
 editing — reordering stops, room categories, adding a property the model did
 not pick.
 
+**Added after submission: copy that disagrees with the itinerary.** Preparing
+for the review surfaced where the deterministic layer stops. It can prove a
+stop now has five nights; it cannot prove that a rationale saying *"Three
+nights gives you…"* agrees with it — whether the model or the designer wrote
+the text. On the `post-submission-fixes` branch the mitigations are a stale
+marker for the designer, the hotel's supplied description in place of stale
+copy in the client preview, and a designer edit whose save states the nights
+it confirms. None of these validates the text itself.
+
+The next step is not to ban night counts from the rationale: that removes the
+pacing judgement — *"reached by charter flight… so it earns a longer stay"* —
+which is the model's most useful contribution, and duration-dependent language
+without a number goes stale anyway. It is to split the copy into *why this
+hotel*, which survives an edit, and *why this length*, which is marked stale
+when the nights change; then to add an AI review on save that checks the copy
+against the stop's nights and the hotel's supplied facts, and flags rather than
+blocks, because the reviewer is not authoritative either. No free-text approach
+guarantees correctness; only structured data can.
+
 ## 14. AI-enabled development process
 
 **Tools, and what each was for.** Claude Code was used throughout: to

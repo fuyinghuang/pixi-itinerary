@@ -589,6 +589,250 @@ generation succeeded end to end.
 
 ---
 
+## Session 7 — Post-submission fixes
+
+**Date:** 2026-09-15
+**Branch:** `post-submission-fixes`, uncommitted; `main` is unchanged as submitted
+**Time:** _pending_
+
+Found while preparing for the technical review. Not part of the submitted
+build or of the time summary below.
+
+### Slice: an edited trip length is visible to the designer
+
+Built
+
+- `App.tsx` keeps the generated `trip_length` as `originalLength` on the
+  itinerary view state. `ItineraryView.tsx` shows *"Now 11 days. Original
+  plan: 10 days."* when an edit changes it. Style in `styles.css`.
+
+Decision
+
+- The baseline lives on the itinerary branch of the `View` union, so a new
+  generation replaces it and every edit carries it forward unchanged. It is
+  labelled *Original plan*, not *what the client asked for*: the generated
+  length is the model's reading of the brief, and briefs with no duration are
+  still unresolved (below). Designer view only, no API change, and no
+  arithmetic in the frontend — both lengths come from the backend.
+
+Verification
+
+- `npm run build` and `oxlint` clean. In the browser against the real
+  recompute route, with generation stubbed by fixed plans so no model was
+  called: longer (11, then 12 days) and shorter (9 days) with the baseline
+  held at 10; the notice removed on returning to 10; hidden in client preview
+  and back on leaving it; reset by a new generation; nights unit (6 vs 5
+  nights); singular wording (1 night vs 2 nights); a rejected edit to 31
+  nights left the itinerary and its 30-vs-29 notice unchanged and showed the
+  error.
+
+### Slice: one error shape for request validation
+
+Built
+
+- A `RequestValidationError` handler in `main.py` returning `ErrorResponse`
+  (422, `invalid_request`, `retryable: false`). Tests in `test_api.py`.
+
+Decision
+
+- The message is built from each error's field location and Pydantic message
+  only, never the submitted value or context; invalid JSON gets a fixed
+  sentence. Only request validation is translated — response validation and
+  other exceptions still surface as programming errors. `api.ts` already
+  displays `message` from an `ErrorResponse`, so the frontend needed no
+  change.
+
+Verification
+
+- New tests: a 31-night stop (schema) and 30 + 1 nights (domain) return the
+  same shape; empty and whitespace-only briefs are rejected without calling
+  the planner; an extra `accommodation_total` is named without echoing its
+  value; malformed JSON returns a readable message without echoing the body.
+  Seen in the browser: *"stops.0.nights: Input should be less than or equal
+  to 30"*.
+
+### Slice: `TripLength` forbids extra fields
+
+Built
+
+- `model_config = ConfigDict(extra="forbid")` on `TripLength`. Tests in
+  `test_schemas.py`.
+
+Decision
+
+- It was the one model nested in `PlannedOutput` that dropped unexpected keys
+  instead of rejecting them, contrary to the rule stated in `schemas.py`. The
+  planner's JSON schema now declares `additionalProperties: false` for
+  `trip_length` as well.
+
+Verification
+
+- Both units still valid; `price` rejected as `extra_forbidden` directly and
+  at `("trip_length", "price")` through `PlannedOutput`; the existing boundary
+  tests pass unchanged. Not exercised against a live model call.
+
+### Slice: a stale rationale falls back to the hotel description
+
+Built
+
+- `frontend/src/baseline.ts` (new): the generation baseline — trip length
+  plus generated nights per hotel id — and `stopCopy`, which chooses what a
+  card shows at render time. `App.tsx` stores the baseline in place of the
+  earlier `originalLength`; `ItineraryView.tsx` passes each card its copy;
+  `StopCard.tsx` renders it; the labels reuse the access-notes style in
+  `styles.css`.
+
+Decision
+
+- Supersedes the earlier proposal to hide a stale rationale from the client.
+  When a stop's nights differ from what was generated for that hotel, or its
+  rationale is empty, the client sees the hotel's supplied `description`
+  verbatim under *About the hotel*. The designer keeps the rationale, labelled
+  *Written for the original 3 nights.*, and sees the description only when
+  there is no rationale. The choice is made at render time: the description
+  is never written into `stop.rationale` or sent back to the API. The
+  baseline is keyed by hotel id and held in App state, because card keys
+  include `day_from` and an edit to an earlier stop remounts later cards.
+- Only hotel and nights are compared. This does not validate claims inside
+  the text or references to other stops, and a rationale that never mentions
+  its nights is replaced all the same — no prose is parsed.
+
+Verification
+
+- `npm run build` and `oxlint` clean. `baseline.ts` compiled with the
+  project's `tsc` and checked with plain Node assertions: matching nights,
+  4 and 2 nights, empty and whitespace-only rationale, a missing baseline, an
+  empty description, and a baseline keyed by hotel.
+- In the browser against the real recompute route, generation stubbed so no
+  model was called: Ellerman House at 3 → 4 → 3 → 2 nights in both views,
+  the night count and prices following each recompute; later cards keeping
+  their rationale after remounting; a replacement showing the new hotel's
+  description, and swapping back not restoring the cleared text; a new
+  generation resetting the baseline in both directions for the same hotel
+  (4 → 3 and 3 → 4 nights); a rejected 31-night edit leaving the 30-night
+  card, its note and the length notice unchanged; an empty rationale, and an
+  empty description (blanked in the stub process only), rendering no empty
+  block. The client preview DOM contained neither a stale rationale nor
+  *Written for*.
+
+### Slice: the designer can rewrite a stale rationale
+
+Built
+
+- A *Review description* control beside a stale rationale in the designer
+  view opens an editor pre-filled with the current text; *Save* sends it
+  through the existing recompute route. `baseline.ts` now records, per hotel,
+  the nights a rationale was written for and whether the model or the
+  designer wrote it (`recordDesignerRationale`), and `App.tsx` stores that
+  record only when the save succeeds. Changes in `StopCard.tsx`,
+  `ItineraryView.tsx`, `App.tsx` and `styles.css`.
+
+Decision
+
+- Three ways to keep a rationale true after a nights change were weighed.
+  Rewriting the number inside the prose (A) was rejected: the model's
+  reasoning is often built on the count (*"Two nights is the property's
+  natural rhythm — one for the estate itself, one for exploring"*), phrasings
+  vary, and a replaced number presents a judgement the model never made.
+  Designer editing (B) was chosen for the demo: no model call, no wait, and
+  `RecomputeStop.rationale` already accepts the text, so the API is
+  unchanged. An AI rewrite the designer reviews before saving (C) is
+  deferred.
+- A saved rewrite counts as current for the nights it was saved at. Changing
+  the nights again marks it *Written for 4 nights.* — without "original".
+  Nothing reaches the client before a save succeeds.
+- Card keys changed from hotel id plus `day_from` to hotel id alone. An edit
+  to an earlier stop shifts later day ranges, which remounted those cards and
+  would have discarded an open draft. Replacing a hotel still changes the
+  key, which closes its draft.
+
+Verification
+
+- `npm run build` and `oxlint` clean. The `baseline.ts` Node assertions,
+  extended: saved text is current at its nights, stale again at 5 with
+  designer attribution, and the original baseline is left untouched.
+- In the browser, generation stubbed: 3 → 4 nights shows the note and
+  *Review description*; the editor opens with the original text; during an
+  unsaved draft the client preview shows the hotel description and no
+  editor, note or draft text; the draft survives toggling the preview; a save
+  with the backend stopped shows the error, keeps the draft and changes
+  nothing; a successful save shows the new text in both views; 5 nights
+  marks it *Written for 4 nights.* and the client falls back; returning to 4
+  restores it; an open draft on Londolozi survives an edit to Ellerman House
+  that shifts its days; *Cancel* restores the original; replacing Park Hyatt
+  Kyoto with a draft open closes it, and swapping back restores neither the
+  draft nor the rationale; a new generation resets the baseline.
+
+### Slice: saving says what it confirms
+
+Built
+
+- The rationale editor's button reads *Save for 5 nights*, and its hint says
+  saving doesn't check the wording. `StopCard.tsx` only.
+
+Decision
+
+- A UX clarification, not validation. Saving records that a person confirmed
+  the text for those nights; it does not read the text. A designer can still
+  save *"Three nights…"* against a five-night stay, and free text is
+  unvalidated whether the model or the designer wrote it — deterministic
+  checks stop at the structured itinerary.
+- Night-count detection and an AI review of the copy were deliberately not
+  added after submission: both change product behaviour (latency, failure
+  states, false positives, cost). An AI review that flags rather than blocks,
+  checked against the stop's nights and the hotel's supplied facts, is the
+  proposed next step.
+
+Verification
+
+- `npm run build` and `oxlint` clean. In the browser, generation stubbed: at
+  5 nights the editor shows *Description for 5 nights*, the new hint and
+  *Save for 5 nights*. Saving *"Three nights gives you…"* succeeded with no
+  note or error — the limitation above, confirmed rather than assumed.
+
+Across the session: 97 backend tests pass (88 before), `npm run build` and
+`oxlint` clean, `python3 data/validate.py` passes.
+
+### Open: briefs that state no trip length
+
+`PlannedOutput.trip_length` is required, and the prompt says nothing about a
+brief with no duration, so the contract gives the model no valid way to report
+that the length is missing. This is a risk read from the code; it has not been
+observed in a live call. A prompt change alone cannot fix it, because the
+response schema has no outcome for "needs more detail". Proposed: a typed
+`needs_detail` planner outcome, keeping `trip_length` required on successful
+plans. Awaiting approval of that design and of live calls to confirm current
+behaviour first.
+
+### Open: free-text copy can disagree with the itinerary
+
+Deterministic checks stop at the structured itinerary. They can prove a stop
+has five nights; they cannot prove that a rationale saying *"Three nights…"*
+agrees with it, whether the model or the designer wrote it. The current
+mitigations — the stale marker, the hotel-description fallback in client
+preview, and an explicit confirmation on save — are not semantic validation.
+
+Considered and deferred, not rejected:
+
+- **Keep night counts out of the rationale, by prompt.** Cheapest, and edits
+  would rarely make copy stale. But it removes the most valuable part of the
+  rationale — why a stay is that long (*"reached by charter flight… so it
+  earns a longer stay"*); duration-dependent language without a number still
+  goes stale; it is enforced only by the prompt; and the copy drifts towards
+  the hotel description it would otherwise add to.
+- **Split the copy into *why this hotel* and *why this length*.** The first
+  survives a nights edit; only the second is marked stale. Keeps the pacing
+  judgement. Needs schema, prompt, frontend and test changes.
+- **An AI review on save.** Compare the copy with the stop's nights and the
+  hotel's supplied facts, and flag rather than block, because the reviewer is
+  not authoritative either. Adds a model call, latency, failure states and
+  cost.
+- **An AI rewrite draft.** The designer reviews it before saving.
+
+No free-text approach can guarantee correctness; only structured data can.
+
+---
+
 ## Time summary
 
 Totals are compiled here and mirrored into

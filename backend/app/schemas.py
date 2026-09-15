@@ -50,7 +50,12 @@ class TripLength(BaseModel):
     The value and unit are preserved rather than normalised here, so the
     brief can be echoed back accurately. Conversion to accommodation nights
     is deterministic and lives in ``itinerary.py``.
+
+    Nested inside ``PlannedOutput``, so it forbids extra fields for the same
+    reason the planner models do: an unexpected key is rejected, not dropped.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     value: int = Field(ge=1, le=MAX_TRIP_LENGTH)
     unit: TripLengthUnit

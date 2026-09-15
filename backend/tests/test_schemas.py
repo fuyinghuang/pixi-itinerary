@@ -69,6 +69,36 @@ def test_unit_is_preserved_not_normalised():
     assert (length.value, length.unit) == (10, "days")
 
 
+@pytest.mark.parametrize("unit", ["days", "nights"])
+def test_trip_length_accepts_both_units(unit: str):
+    assert TripLength(value=10, unit=unit).unit == unit
+
+
+def test_trip_length_rejects_an_unexpected_field():
+    with pytest.raises(ValidationError) as excinfo:
+        TripLength(value=10, unit="days", price=1800)
+
+    error = excinfo.value.errors()[0]
+    assert error["type"] == "extra_forbidden"
+    assert error["loc"] == ("price",)
+
+
+def test_planned_output_rejects_a_field_nested_in_trip_length():
+    trip_length = {"value": 10, "unit": "days", "price": 1800}
+    with pytest.raises(ValidationError) as excinfo:
+        PlannedOutput(**_planned(trip_length=trip_length))
+
+    error = excinfo.value.errors()[0]
+    assert error["type"] == "extra_forbidden"
+    assert error["loc"] == ("trip_length", "price")
+
+
+def test_the_model_schema_forbids_extra_trip_length_fields():
+    # This is the JSON schema the planner's structured output is held to.
+    schema = PlannedOutput.model_json_schema()
+    assert schema["$defs"]["TripLength"]["additionalProperties"] is False
+
+
 # --- the planner cannot author derived facts ------------------------------
 
 

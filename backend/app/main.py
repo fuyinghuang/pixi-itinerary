@@ -8,15 +8,19 @@ An unsupported brief is a normal product outcome and returns 200 with a
 typed response. Only a genuine failure — the model unreachable, or unusable
 output after the single repair — returns an error status, and it is always
 something the UI can render and retry.
+
+Every error, including a request FastAPI rejects before a route runs, uses
+the one ``ErrorResponse`` shape.
 """
 
 from __future__ import annotations
 
 import os
-from typing import Union
+from typing import List, Union
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -47,6 +51,39 @@ app.add_middleware(
 def _error(status: int, code: str, message: str, retryable: bool) -> JSONResponse:
     body = ErrorResponse(code=code, message=message, retryable=retryable)
     return JSONResponse(status_code=status, content=body.model_dump())
+
+
+def _describe_validation_error(exc: RequestValidationError) -> str:
+    """Which field failed and why.
+
+    Built from each error's location and message only. The submitted value
+    and Pydantic's context are never echoed back.
+    """
+    problems: List[str] = []
+    for error in exc.errors():
+        if error.get("type") == "json_invalid":
+            problems.append("the request body is not valid JSON")
+            continue
+
+        location = list(error.get("loc", ()))
+        if location and location[0] == "body":
+            location = location[1:]
+        field = ".".join(str(part) for part in location) or "request body"
+        problems.append("{}: {}".format(field, error.get("msg", "invalid value")))
+
+    return "; ".join(problems) or "The request is invalid."
+
+
+@app.exception_handler(RequestValidationError)
+def request_validation_error(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """A request FastAPI rejected before any route ran.
+
+    Only request validation is translated. Response validation failures and
+    any other exception are programming errors and are left to surface.
+    """
+    return _error(422, "invalid_request", _describe_validation_error(exc), False)
 
 
 @app.get("/api/health")

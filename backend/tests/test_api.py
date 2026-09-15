@@ -22,6 +22,9 @@ CAPE_TOWN = "ellerman-house-cape-town"
 STELLENBOSCH = "delaire-graff-stellenbosch"
 LONDOLOZI = "londolozi-sabi-sand"
 
+#: The one error shape every failure uses, request validation included.
+ERROR_KEYS = {"code", "message", "retryable"}
+
 
 def _recompute_body(stops: List[Dict[str, Any]], unit: str = "days") -> Dict[str, Any]:
     return {
@@ -35,6 +38,16 @@ def _recompute_body(stops: List[Dict[str, Any]], unit: str = "days") -> Dict[str
 
 def _stop(hotel_id: str, nights: int) -> Dict[str, Any]:
     return {"hotel_id": hotel_id, "nights": nights, "rationale": "Because."}
+
+
+def _invalid_request(response: Any) -> Dict[str, Any]:
+    """Assert the standard 422 error shape and return its body."""
+    assert response.status_code == 422
+    body = response.json()
+    assert set(body) == ERROR_KEYS
+    assert body["code"] == "invalid_request"
+    assert body["retryable"] is False
+    return body
 
 
 # --- health ---------------------------------------------------------------
@@ -78,15 +91,54 @@ def test_recompute_embeds_the_supplied_hotel_content():
 def test_recompute_rejects_a_derived_field():
     body = _recompute_body([_stop(CAPE_TOWN, 3)])
     body["accommodation_total"] = 999
-    assert client.post("/api/itineraries/recompute", json=body).status_code == 422
+    error = _invalid_request(client.post("/api/itineraries/recompute", json=body))
+
+    assert "accommodation_total" in error["message"]
+    assert "999" not in error["message"]
 
 
 def test_recompute_reports_a_domain_violation():
     body = _recompute_body([_stop(CAPE_TOWN, 3), _stop(CAPE_TOWN, 3)])
-    response = client.post("/api/itineraries/recompute", json=body)
+    error = _invalid_request(client.post("/api/itineraries/recompute", json=body))
 
-    assert response.status_code == 422
-    assert response.json()["code"] == "invalid_request"
+    assert "more than once" in error["message"]
+
+
+# --- request errors share the domain error's shape ------------------------
+
+
+def test_a_schema_rejection_uses_the_standard_error_format():
+    # One stop above the per-stop cap is rejected by Pydantic before the
+    # route runs, so it never reaches domain validation.
+    body = _recompute_body([_stop(CAPE_TOWN, 31)], unit="nights")
+    error = _invalid_request(client.post("/api/itineraries/recompute", json=body))
+
+    assert "stops.0.nights" in error["message"]
+    assert "less than or equal to 30" in error["message"]
+    assert "31" not in error["message"]
+
+
+def test_a_domain_rejection_uses_the_same_format():
+    # Each stop is within the per-stop cap, so Pydantic accepts the request
+    # and the derived 31-night length is rejected by domain validation.
+    body = _recompute_body(
+        [_stop(CAPE_TOWN, 30), _stop(STELLENBOSCH, 1)], unit="nights"
+    )
+    error = _invalid_request(client.post("/api/itineraries/recompute", json=body))
+
+    assert "31-night trip" in error["message"]
+
+
+def test_malformed_json_is_rejected_safely():
+    response = client.post(
+        "/api/itineraries/recompute",
+        content='{"trip_region": "south-africa", "narrative": "SENTINEL-VALUE',
+        headers={"Content-Type": "application/json"},
+    )
+    error = _invalid_request(response)
+
+    assert error["message"] == "the request body is not valid JSON"
+    assert "SENTINEL-VALUE" not in response.text
 
 
 # --- generation: planner replaced -----------------------------------------
@@ -167,5 +219,13 @@ def test_unusable_output_reports_a_distinct_code(stub_planner):
     assert response.json()["code"] == "planner_invalid_output"
 
 
-def test_an_empty_brief_is_rejected_before_the_model():
-    assert client.post("/api/itineraries", json={"brief": ""}).status_code == 422
+@pytest.mark.parametrize("brief", ["", "   \n\t  "])
+def test_an_empty_brief_is_rejected_before_the_model(monkeypatch, brief: str):
+    calls: List[str] = []
+    monkeypatch.setattr(
+        "app.main.planner.plan", lambda brief, **kwargs: calls.append(brief)
+    )
+    error = _invalid_request(client.post("/api/itineraries", json={"brief": brief}))
+
+    assert error["message"].startswith("brief:")
+    assert calls == []

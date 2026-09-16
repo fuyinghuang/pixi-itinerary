@@ -298,10 +298,11 @@ not pick.
 for the review surfaced where the deterministic layer stops. It can prove a
 stop now has five nights; it cannot prove that a rationale saying *"Three
 nights gives you…"* agrees with it — whether the model or the designer wrote
-the text. On the `post-submission-fixes` branch the mitigations are a stale
-marker for the designer, the hotel's supplied description in place of stale
-copy in the client preview, and a designer edit whose save states the nights
-it confirms. None of these validates the text itself.
+the text. On `main` after submission — the submitted commit is tagged
+`submission` — the mitigations are a stale marker for the designer, the
+hotel's supplied description in place of stale copy in the client preview,
+and a designer edit whose save states the nights it confirms. None of these
+validates the text itself.
 
 The next step is not to ban night counts from the rationale: that removes the
 pacing judgement — *"reached by charter flight… so it earns a longer stay"* —

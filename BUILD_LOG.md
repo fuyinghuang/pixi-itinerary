@@ -591,8 +591,10 @@ generation succeeded end to end.
 
 ## Session 7 — Post-submission fixes
 
-**Date:** 2026-09-15
-**Branch:** `post-submission-fixes`, uncommitted; `main` is unchanged as submitted
+**Date:** 2026-09-15 to 2026-09-16
+**Status:** built on a `post-submission-fixes` branch, then fast-forwarded onto
+`main` and pushed on 2026-09-16. The submitted commit is tagged `submission`
+(`1d4fc75`), so the state the reviewer read stays identifiable.
 **Time:** _pending_
 
 Found while preparing for the technical review. Not part of the submitted
@@ -811,6 +813,16 @@ has five nights; they cannot prove that a rationale saying *"Three nights…"*
 agrees with it, whether the model or the designer wrote it. The current
 mitigations — the stale marker, the hotel-description fallback in client
 preview, and an explicit confirmation on save — are not semantic validation.
+
+What the editor covers is narrower than a copy editor, deliberately:
+
+- Only copy already marked stale can be edited. Copy that is wrong but was
+  written for the current nights has no entry point, and a rationale cleared
+  by a hotel swap cannot be written from scratch.
+- Saving records that a person confirmed the text for those nights; it does
+  not read the text.
+- Staleness is per stop. A rationale that refers to another stop is not
+  marked when that stop changes.
 
 Considered and deferred, not rejected:
 
